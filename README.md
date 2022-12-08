@@ -1,0 +1,2 @@
+# FileDuplicateAnalyzer
+file duplicate analyzer
