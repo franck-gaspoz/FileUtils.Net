@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "FileDuplicateAnalyzer": {
+      "commandName": "Project",
+      "commandLineArgs": "help"
+    }
+  }
+}
