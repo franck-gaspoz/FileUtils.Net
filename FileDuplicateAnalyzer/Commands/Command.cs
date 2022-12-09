@@ -44,8 +44,11 @@ internal abstract class Command
         => _config.GetValue<string>($"commands:{ClassNameToCommandName}:longDesc")!
         ?? _config.GetValue<string>($"texts:commandLongHelpNotFound")!;
 
-    public string ClassNameToCommandName
+    public string ClassNameToCommandName()
         => GetType().Name[0..^7].ToLower();
+
+    public static string ClassNameToCommandName(string className)
+        => className[0..^7].ToLower();
 
     protected void CheckMaxArgs(string[] args, int maxArgCount)
     {

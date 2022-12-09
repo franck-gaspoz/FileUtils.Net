@@ -149,9 +149,7 @@ public class Program
                 services.AddSingleton(classType);
 
                 _commandSet.Add(
-                    classType
-                        .Name[0..^7]
-                        .ToLower(),
+                    Command.ClassNameToCommandName(classType.Name),
                     classType);
             }
         }
