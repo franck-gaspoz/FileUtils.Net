@@ -1,5 +1,6 @@
 ﻿namespace FileDuplicateAnalyzer.SharedModels;
 
+[Serializable]
 internal sealed class FileItem : FileSystemItem
 {
     public FileItem(

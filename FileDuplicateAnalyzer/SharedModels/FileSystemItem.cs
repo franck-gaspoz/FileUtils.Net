@@ -1,5 +1,6 @@
 ﻿namespace FileDuplicateAnalyzer.SharedModels;
 
+[Serializable]
 internal abstract class FileSystemItem
 {
     public string Name { get; private set; }

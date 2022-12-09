@@ -3,14 +3,14 @@ using FileDuplicateAnalyzer.Services.Text;
 
 using Microsoft.Extensions.Configuration;
 
-namespace FileDuplicateAnalyzer.Commands.ScanFiles;
+namespace FileDuplicateAnalyzer.Commands.Scan;
 
 /// <summary>
 /// scan files
 /// </summary>
-internal sealed class ScanFilesCommand : Command
+internal sealed class ScanCommand : Command
 {
-    public ScanFilesCommand(
+    public ScanCommand(
         IConfiguration config,
         IOutput output,
         Texts texts) : base(config, output, texts)

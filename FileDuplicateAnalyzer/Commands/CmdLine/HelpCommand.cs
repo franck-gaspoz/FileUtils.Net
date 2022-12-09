@@ -32,14 +32,17 @@ internal sealed class HelpCommand : Command
         _commandsSet = commands;
     }
 
+    private void Sep() => _out.WriteLine("".PadLeft(50, '-'));
+
     public override int Run(string[] args)
     {
         CheckMaxArgs(args, 1);
 
+        Sep();
         _out.WriteLine(_config.GetValue<string>("App:Title")!
             + $" ({Assembly.GetExecutingAssembly().GetName().Version})");
         _out.WriteLine("culture: " + Thread.CurrentThread.CurrentCulture.Name);
-        _out.WriteLine();
+        Sep();
 
         if (args.Length == 0)
         {
@@ -63,6 +66,7 @@ internal sealed class HelpCommand : Command
             Command? command = (Command)_serviceProvider.GetRequiredService(commandType);
             _out.WriteLine(command.LongDescription());
         }
+        Sep();
 
         return Globals.ExitOk;
     }
