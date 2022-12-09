@@ -51,7 +51,7 @@ public class Program
         Texts texts = host.Services.GetRequiredService<Texts>();
 
         if (args.Length == 0)
-            throw new Exception(texts._("missingArguments"));
+            throw new Exception(texts._("MissingArguments"));
 
         Command? command = GetCommand(texts, args[0]);
         return command.Run(argList.ToArray()[1..]);
@@ -119,6 +119,7 @@ public class Program
                     classType.Name);
 
                 _globalArgsSet.Add(argName, classType);
+                services.AddSingleton(classType);
 
                 if (GlobalArgsSet.ExistsInArgList(
                     classType, args

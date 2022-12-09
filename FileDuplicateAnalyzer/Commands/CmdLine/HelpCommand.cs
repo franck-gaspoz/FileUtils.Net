@@ -1,5 +1,6 @@
 ﻿using System.Reflection;
 
+using FileDuplicateAnalyzer.GlobalArgs;
 using FileDuplicateAnalyzer.Services.CmdLine;
 using FileDuplicateAnalyzer.Services.IO;
 using FileDuplicateAnalyzer.Services.Text;
@@ -15,15 +16,18 @@ namespace FileDuplicateAnalyzer.Commands.CmdLine;
 internal sealed class HelpCommand : Command
 {
     private readonly CommandsSet _commandsSet;
+    private readonly GlobalArgsSet _globalArgsSet;
     private readonly IServiceProvider _serviceProvider;
 
     public HelpCommand(
         IConfiguration config,
         CommandsSet commands,
+        GlobalArgsSet globalArgsSet,
         IOutput output,
         Texts texts,
         IServiceProvider serviceProvider) : base(config, output, texts)
     {
+        _globalArgsSet = globalArgsSet;
         _serviceProvider = serviceProvider;
         _commandsSet = commands;
     }
@@ -39,11 +43,18 @@ internal sealed class HelpCommand : Command
 
         if (args.Length == 0)
         {
+            _out.WriteLine("commands:");
             foreach (KeyValuePair<string, Type> kvp in _commandsSet.Commands)
             {
-                Type commandType = _commandsSet.Get(kvp.Key);
-                Command? command = (Command)_serviceProvider.GetRequiredService(commandType);
+                Command command = (Command)_serviceProvider.GetRequiredService(kvp.Value);
                 _out.WriteLine(kvp.Key + " : " + command.ShortDescription());
+            }
+            _out.WriteLine();
+            _out.WriteLine("global args:");
+            foreach (KeyValuePair<string, Type> kvp in _globalArgsSet.Args)
+            {
+                GlobalArg? globalArg = (GlobalArg)_serviceProvider.GetRequiredService(kvp.Value);
+                _out.WriteLine(kvp.Key + " : " + globalArg.Description());
             }
         }
         else
