@@ -2,5 +2,5 @@
 
 internal interface IOutput
 {
-    void WriteLine(string s);
+    void WriteLine(string? s = null);
 }

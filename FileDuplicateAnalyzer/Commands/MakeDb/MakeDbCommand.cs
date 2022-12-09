@@ -2,6 +2,8 @@
 using FileDuplicateAnalyzer.Services.IO;
 using FileDuplicateAnalyzer.Services.Text;
 
+using Microsoft.Extensions.Configuration;
+
 namespace FileDuplicateAnalyzer.Commands.MakeDb;
 
 /// <summary>
@@ -10,16 +12,12 @@ namespace FileDuplicateAnalyzer.Commands.MakeDb;
 internal sealed class MakeDbCommand : Command
 {
     public MakeDbCommand(
+        IConfiguration config,
         IOutput output,
-        Texts texts) : base(output, texts)
+        Texts texts) : base(config, output, texts)
     {
     }
 
     public override int Run(string[] args)
         => throw new NotImplementedException();
-
-    public override string ShortDescription() => "build a file db";
-
-    public override string LongDescription() => "makedb : build a file db";
-
 }

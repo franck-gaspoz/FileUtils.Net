@@ -2,6 +2,6 @@
 
 internal sealed class Output : IOutput
 {
-    public void WriteLine(string s) => Console.WriteLine(s);
+    public void WriteLine(string? s = null) => Console.WriteLine(s ?? string.Empty);
 }
 

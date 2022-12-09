@@ -1,7 +1,10 @@
-﻿using FileDuplicateAnalyzer.Services.CmdLine;
+﻿using System.Reflection;
+
+using FileDuplicateAnalyzer.Services.CmdLine;
 using FileDuplicateAnalyzer.Services.IO;
 using FileDuplicateAnalyzer.Services.Text;
 
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace FileDuplicateAnalyzer.Commands.CmdLine;
@@ -15,22 +18,24 @@ internal sealed class HelpCommand : Command
     private readonly IServiceProvider _serviceProvider;
 
     public HelpCommand(
+        IConfiguration config,
         CommandsSet commands,
         IOutput output,
         Texts texts,
-        IServiceProvider serviceProvider) : base(output, texts)
+        IServiceProvider serviceProvider) : base(config, output, texts)
     {
         _serviceProvider = serviceProvider;
         _commandsSet = commands;
     }
 
-    public override string ShortDescription() => "list commands or returns help about a command";
-
-    public override string LongDescription() => $"help: list all commands{Environment.NewLine}help commandName: help about the command with name commandName";
-
     public override int Run(string[] args)
     {
         CheckMaxArgs(args, 1);
+
+        _out.WriteLine(_config.GetValue<string>("app:title")!
+            + $" ({Assembly.GetExecutingAssembly().GetName().Version})");
+        _out.WriteLine("culture: " + Thread.CurrentThread.CurrentCulture.Name);
+        _out.WriteLine();
 
         if (args.Length == 0)
         {

@@ -2,6 +2,6 @@
 
 internal sealed class SilentOutput : IOutput
 {
-    public void WriteLine(string s) { }
+    public void WriteLine(string? s = null) { }
 }
 

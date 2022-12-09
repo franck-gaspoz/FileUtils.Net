@@ -4,6 +4,7 @@ using FileDuplicateAnalyzer.Services.CmdLine;
 using FileDuplicateAnalyzer.Services.IO;
 using FileDuplicateAnalyzer.Services.Text;
 
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
@@ -16,7 +17,6 @@ namespace FileDuplicateAnalyzer;
 /// </summary>
 public class Program
 {
-    private readonly Texts _texts = new();
     private IServiceProvider? _serviceProvider;
     private CommandsSet? _commandSet;
     private GlobalArgsSet? _globalArgsSet;
@@ -44,14 +44,16 @@ public class Program
 
     internal int Startup(string[] args)
     {
-        if (args.Length == 0)
-            throw new Exception(_texts._(Texts.MissingArguments));
-
         List<string>? argList = args.ToList();
         IHost? host = CreateHost(argList);
         host.StartAsync();
 
-        Command? command = GetCommand(args[0]);
+        Texts texts = host.Services.GetRequiredService<Texts>();
+
+        if (args.Length == 0)
+            throw new Exception(texts._("missingArguments"));
+
+        Command? command = GetCommand(texts, args[0]);
         return command.Run(argList.ToArray()[1..]);
     }
 
@@ -60,10 +62,18 @@ public class Program
         IHostBuilder? hostBuilder = Host.CreateDefaultBuilder();
 
         hostBuilder
+            .ConfigureAppConfiguration(
+                configure =>
+                {
+                    configure.AddJsonFile("config/appSettings.json", optional: false);
+                    string? cultureConfigFileName = $"config/appSettings.{Thread.CurrentThread.CurrentCulture.Name}.json";
+                    if (File.Exists(cultureConfigFileName))
+                        configure.AddJsonFile(cultureConfigFileName, optional: false);
+                })
             .ConfigureServices(
                 services =>
                 {
-                    services.AddSingleton(_texts);
+                    services.AddSingleton<Texts>();
                     AddCommands(services);
                     AddArguments(services, args);
                 });
@@ -127,7 +137,7 @@ public class Program
 
     private void AddCommands(IServiceCollection services)
     {
-        _commandSet = new(_texts);
+        _commandSet = new(services.BuildServiceProvider().GetRequiredService<Texts>());
 
         foreach (Type classType in
             GetType()
@@ -149,8 +159,8 @@ public class Program
         services.AddSingleton(_commandSet);
     }
 
-    private Command GetCommand(string commandName)
+    private Command GetCommand(Texts texts, string commandName)
         => !_commandSet!.Commands.TryGetValue(commandName, out Type? commandType)
-            ? throw new Exception(_texts._(Texts.UnknownCommand, commandName))
+            ? throw new Exception(texts._("unknownCommand", commandName))
             : (Command)_serviceProvider!.GetRequiredService(commandType);
 }
