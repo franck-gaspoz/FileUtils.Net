@@ -159,6 +159,6 @@ public class Program
 
     private Command GetCommand(Texts texts, string commandName)
         => !_commandSet!.Commands.TryGetValue(commandName, out Type? commandType)
-            ? throw new Exception(texts._("unknownCommand", commandName))
+            ? throw new Exception(texts._("UnknownCommand", commandName))
             : (Command)_serviceProvider!.GetRequiredService(commandType);
 }

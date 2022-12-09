@@ -32,7 +32,7 @@ internal sealed class HelpCommand : Command
     {
         CheckMaxArgs(args, 1);
 
-        _out.WriteLine(_config.GetValue<string>("app:title")!
+        _out.WriteLine(_config.GetValue<string>("App:Title")!
             + $" ({Assembly.GetExecutingAssembly().GetName().Version})");
         _out.WriteLine("culture: " + Thread.CurrentThread.CurrentCulture.Name);
         _out.WriteLine();

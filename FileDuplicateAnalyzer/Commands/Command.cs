@@ -33,16 +33,16 @@ internal abstract class Command
     /// </summary>
     /// <returns>text of the description</returns>
     public string ShortDescription()
-        => _config.GetValue<string>($"commands:{ClassNameToCommandName()}:shortDesc")
-        ?? _config.GetValue<string>($"texts:commandShortHelpNotFound")!;
+        => _config.GetValue<string>($"Commands:{ClassNameToCommandName()}:shortDesc")
+        ?? _config.GetValue<string>($"Texts:CommandShortHelpNotFound")!;
 
     /// <summary>
     /// long description of the command
     /// </summary>
     /// <returns>text of the description</returns>
     public string LongDescription()
-        => _config.GetValue<string>($"commands:{ClassNameToCommandName()}:longDesc")!
-        ?? _config.GetValue<string>($"texts:commandLongHelpNotFound")!;
+        => _config.GetValue<string>($"Commands:{ClassNameToCommandName()}:longDesc")!
+        ?? _config.GetValue<string>($"Texts:commandLongHelpNotFound")!;
 
     public string ClassNameToCommandName()
         => GetType().Name[0..^7].ToLower();
@@ -53,13 +53,13 @@ internal abstract class Command
     protected void CheckMaxArgs(string[] args, int maxArgCount)
     {
         if (args.Length > maxArgCount)
-            throw new ArgumentException(_texts._("tooManyArguments", maxArgCount));
+            throw new ArgumentException(_texts._("TooManyArguments", maxArgCount));
     }
 
     protected void CheckMinArgs(string[] args, int minArgCount)
     {
         if (args.Length > minArgCount)
-            throw new ArgumentException(_texts._("notEnoughArguments", minArgCount));
+            throw new ArgumentException(_texts._("NotEnoughArguments", minArgCount));
     }
 
     protected void CheckMinMaxArgs(string[] args, int minArgCount, int maxArgCount)

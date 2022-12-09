@@ -36,8 +36,8 @@ internal sealed class Texts
         string? txt = _config.GetValue<string>(textId);
         return txt is null
             ? !noRecurse
-                ? T("unknownText", true, parameters)
-                : $"unknown text: {textId}"
+                ? T("UnknownText", true, parameters)
+                : $"Unknown text: {textId}"
             : string.Format(txt, parameters);
     }
 }
