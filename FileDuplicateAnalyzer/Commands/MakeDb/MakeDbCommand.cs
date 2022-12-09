@@ -1,4 +1,5 @@
-﻿using FileDuplicateAnalyzer.Services.IO;
+﻿
+using FileDuplicateAnalyzer.Services.IO;
 using FileDuplicateAnalyzer.Services.Text;
 
 namespace FileDuplicateAnalyzer.Commands.MakeDb;
@@ -15,6 +16,10 @@ internal sealed class MakeDbCommand : Command
     }
 
     public override int Run(string[] args)
-
         => throw new NotImplementedException();
+
+    public override string ShortDescription() => "build a file db";
+
+    public override string LongDescription() => "makedb : build a file db";
+
 }

@@ -2,6 +2,8 @@
 using FileDuplicateAnalyzer.Services.IO;
 using FileDuplicateAnalyzer.Services.Text;
 
+using Microsoft.Extensions.DependencyInjection;
+
 namespace FileDuplicateAnalyzer.Commands.CmdLine;
 
 /// <summary>
@@ -22,6 +24,10 @@ internal sealed class HelpCommand : Command
         _commandsSet = commands;
     }
 
+    public override string ShortDescription() => "list commands or returns help about a command";
+
+    public override string LongDescription() => $"help: list all commands{Environment.NewLine}help commandName: help about the command with name commandName";
+
     public override int Run(string[] args)
     {
         CheckMaxArgs(args, 1);
@@ -30,13 +36,16 @@ internal sealed class HelpCommand : Command
         {
             foreach (KeyValuePair<string, Type> kvp in _commandsSet.Commands)
             {
-                _out.WriteLine(kvp.Key);
+                Type commandType = _commandsSet.Get(kvp.Key);
+                Command? command = (Command)_serviceProvider.GetRequiredService(commandType);
+                _out.WriteLine(kvp.Key + " : " + command.ShortDescription());
             }
         }
         else
         {
-            Type command = _commandsSet.Get(args[0]);
-            _out.WriteLine(command.Name);
+            Type commandType = _commandsSet.Get(args[0]);
+            Command? command = (Command)_serviceProvider.GetRequiredService(commandType);
+            _out.WriteLine(command.LongDescription());
         }
 
         return Globals.ExitOk;

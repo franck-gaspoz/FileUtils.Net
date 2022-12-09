@@ -23,6 +23,18 @@ internal abstract class Command
     /// <returns>return code</returns>
     public abstract int Run(string[] args);
 
+    /// <summary>
+    /// short description of the command
+    /// </summary>
+    /// <returns>text of the description</returns>
+    public abstract string ShortDescription();
+
+    /// <summary>
+    /// long description of the command
+    /// </summary>
+    /// <returns>text of the description</returns>
+    public abstract string LongDescription();
+
     protected void CheckMaxArgs(string[] args, int maxArgCount)
     {
         if (args.Length > maxArgCount)

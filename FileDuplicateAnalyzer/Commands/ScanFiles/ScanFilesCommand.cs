@@ -16,4 +16,8 @@ internal sealed class ScanFilesCommand : Command
 
     public override int Run(string[] args)
         => throw new NotImplementedException();
+
+    public override string ShortDescription() => "scan files";
+
+    public override string LongDescription() => "scanfiles : scan files";
 }
