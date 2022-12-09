@@ -32,7 +32,7 @@ internal abstract class Command
     protected void CheckMinArgs(string[] args, int minArgCount)
     {
         if (args.Length > minArgCount)
-            throw new ArgumentException(_texts._(Texts.MissingArguments, minArgCount));
+            throw new ArgumentException(_texts._(Texts.NotEnoughArguments, minArgCount));
     }
 
     protected void CheckMinMaxArgs(string[] args, int minArgCount, int maxArgCount)
