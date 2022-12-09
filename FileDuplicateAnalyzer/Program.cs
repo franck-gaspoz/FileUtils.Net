@@ -1,4 +1,5 @@
 ﻿using FileDuplicateAnalyzer.Commands;
+using FileDuplicateAnalyzer.GlobalArgs;
 using FileDuplicateAnalyzer.Services.CmdLine;
 using FileDuplicateAnalyzer.Services.IO;
 using FileDuplicateAnalyzer.Services.Text;
@@ -15,9 +16,11 @@ namespace FileDuplicateAnalyzer;
 /// </summary>
 public class Program
 {
-    private readonly Texts _texts = Texts.Instance;
+    private readonly Texts _texts = new();
     private IServiceProvider? _serviceProvider;
     private CommandsSet? _commandSet;
+    private GlobalArgsSet? _globalArgsSet;
+    private SettedGlobalArgsSet? _settedGlobalArgsSet;
 
     /// <summary>
     /// command line input
@@ -44,14 +47,15 @@ public class Program
         if (args.Length == 0)
             throw new Exception(_texts._(Texts.MissingArguments));
 
-        IHost? host = CreateHost();
+        List<string>? argList = args.ToList();
+        IHost? host = CreateHost(argList);
         host.StartAsync();
 
         Command? command = GetCommand(args[0]);
-        return command.Run(args[1..]);
+        return command.Run(argList.ToArray()[1..]);
     }
 
-    private IHost CreateHost()
+    private IHost CreateHost(List<string> args)
     {
         IHostBuilder? hostBuilder = Host.CreateDefaultBuilder();
 
@@ -59,18 +63,71 @@ public class Program
             .ConfigureServices(
                 services =>
                 {
-                    services.AddSingleton<IOutput, Output>();
+                    services.AddSingleton(_texts);
                     AddCommands(services);
+                    AddArguments(services, args);
                 });
+
+        ConfigureOutput(args, hostBuilder);
 
         IHost? host = hostBuilder.Build();
         _serviceProvider = host.Services;
         return host;
     }
 
+    private static void ConfigureOutput(List<string> args, IHostBuilder hostBuilder)
+    {
+        if (!GlobalArgsSet.ExistsInArgList(typeof(SGlobalArg), args))
+        {
+            hostBuilder
+                .ConfigureServices(services =>
+                    services.AddSingleton<IOutput, Output>());
+        }
+        else
+        {
+            hostBuilder
+                .ConfigureServices(services =>
+                    services.AddSingleton<IOutput, SilentOutput>());
+        }
+    }
+
+    private void AddArguments(
+        IServiceCollection services,
+        List<string> args)
+    {
+        _globalArgsSet = new();
+        _settedGlobalArgsSet = new();
+
+        foreach (Type classType in
+            GetType()
+                .Assembly
+                .GetTypes())
+        {
+            if (classType.InheritsFrom(typeof(GlobalArg)))
+            {
+                string? argName = GlobalArg.ClassNameToArgName(
+                    classType.Name);
+
+                _globalArgsSet.Add(argName, classType);
+
+                if (GlobalArgsSet.ExistsInArgList(
+                    classType, args
+                    ))
+                {
+                    string? prefixedName = GlobalArg.GetPrefixFromArgName(argName)
+                        + argName;
+                    args.Remove(prefixedName);
+                    _settedGlobalArgsSet.Add(argName, classType);
+                }
+            }
+        }
+
+        services.AddSingleton(_globalArgsSet);
+    }
+
     private void AddCommands(IServiceCollection services)
     {
-        _commandSet = new CommandsSet();
+        _commandSet = new(_texts);
 
         foreach (Type classType in
             GetType()

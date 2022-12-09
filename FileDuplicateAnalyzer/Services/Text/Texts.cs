@@ -3,22 +3,25 @@
 internal sealed class Texts
 {
 #pragma warning disable CS8618 // Un champ non-nullable doit contenir une valeur non-null lors de la fermeture du constructeur. Envisagez de déclarer le champ comme nullable.
-    private static Texts _messages;
+    private Texts _messages;
 #pragma warning restore CS8618 // Un champ non-nullable doit contenir une valeur non-null lors de la fermeture du constructeur. Envisagez de déclarer le champ comme nullable.
 
-    public static Texts Instance => _messages ??= new Texts();
+    public Texts Instance => _messages ??= new Texts();
 
     private readonly Dictionary<int, string> _texts = new()
     {
         { UnknownText, "unknown text: %1" },
         { MissingArguments, "missing arguments" },
         { UnknownCommand, "unknown command: %1" },
+        { NotEnoughArguments, "not enough arguments. min is %1" },
     };
 
     private static int _counter = 0;
     public static int MissingArguments = _counter++;
     public static int UnknownCommand = _counter++;
     public static int UnknownText = _counter++;
+    public static int TooManyArguments = _counter++;
+    public static int NotEnoughArguments = _counter++;
 
     /// <summary>
     /// returns text from text id

@@ -1,8 +1,7 @@
 ﻿namespace FileDuplicateAnalyzer.Services.IO;
 
-internal class Output : IOutput
+internal sealed class Output : IOutput
 {
-    public void WriteLine(string s)
-        => System.Console.WriteLine(s);
+    public void WriteLine(string s) => Console.WriteLine(s);
 }
 

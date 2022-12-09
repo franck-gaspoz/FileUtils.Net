@@ -1,30 +1,44 @@
 ﻿using FileDuplicateAnalyzer.Services.CmdLine;
 using FileDuplicateAnalyzer.Services.IO;
+using FileDuplicateAnalyzer.Services.Text;
 
 namespace FileDuplicateAnalyzer.Commands.CmdLine;
 
 /// <summary>
 /// command line help
 /// </summary>
-internal class HelpCommand : Command
+internal sealed class HelpCommand : Command
 {
     private readonly CommandsSet _commandsSet;
-    private readonly IOutput _out;
+    private readonly IServiceProvider _serviceProvider;
 
     public HelpCommand(
         CommandsSet commands,
-        IOutput ouput)
+        IOutput output,
+        Texts texts,
+        IServiceProvider serviceProvider) : base(output, texts)
     {
+        _serviceProvider = serviceProvider;
         _commandsSet = commands;
-        _out = ouput;
     }
 
     public override int Run(string[] args)
     {
-        foreach (KeyValuePair<string, Type> kvp in _commandsSet.Commands)
+        CheckMaxArgs(args, 1);
+
+        if (args.Length == 0)
         {
-            _out.WriteLine(kvp.Key);
+            foreach (KeyValuePair<string, Type> kvp in _commandsSet.Commands)
+            {
+                _out.WriteLine(kvp.Key);
+            }
         }
+        else
+        {
+            Type command = _commandsSet.Get(args[0]);
+            _out.WriteLine(command.Name);
+        }
+
         return Globals.ExitOk;
     }
 }
