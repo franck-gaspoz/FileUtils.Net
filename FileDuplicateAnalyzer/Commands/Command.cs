@@ -33,7 +33,7 @@ internal abstract class Command
     /// </summary>
     /// <returns>text of the description</returns>
     public string ShortDescription()
-        => _config.GetValue<string>($"commands:{ClassNameToCommandName}:shortDesc")
+        => _config.GetValue<string>($"commands:{ClassNameToCommandName()}:shortDesc")
         ?? _config.GetValue<string>($"texts:commandShortHelpNotFound")!;
 
     /// <summary>
@@ -41,7 +41,7 @@ internal abstract class Command
     /// </summary>
     /// <returns>text of the description</returns>
     public string LongDescription()
-        => _config.GetValue<string>($"commands:{ClassNameToCommandName}:longDesc")!
+        => _config.GetValue<string>($"commands:{ClassNameToCommandName()}:longDesc")!
         ?? _config.GetValue<string>($"texts:commandLongHelpNotFound")!;
 
     public string ClassNameToCommandName()
