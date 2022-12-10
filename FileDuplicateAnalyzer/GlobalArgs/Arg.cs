@@ -49,7 +49,10 @@ internal abstract class Arg
             args.RemoveAt(index);
             expectedCount--;
         }
+        Initialize();
     }
+
+    protected virtual void Initialize() { }
 
     public static string ClassNameToArgName(string name)
         => name[0..^9]
