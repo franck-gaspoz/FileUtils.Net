@@ -6,7 +6,7 @@ namespace FileDuplicateAnalyzer.Services.CmdLine;
 
 internal sealed class SettedGlobalArgsSet
 {
-    protected readonly Dictionary<string, Arg> _args = new();
+    private readonly Dictionary<string, Arg> _args = new();
 
     public IReadOnlyDictionary<string, Arg> Args
         => _args;

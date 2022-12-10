@@ -77,9 +77,8 @@ public class Program
                     AddCommands(services);
                     AddArguments(services);
                     ParseGlobalArguments(args, services);
+                    ConfigureOutput(services, hostBuilder);
                 });
-
-        ConfigureOutput(args, hostBuilder);
 
         var host = hostBuilder.Build();
         _serviceProvider = host.Services;
