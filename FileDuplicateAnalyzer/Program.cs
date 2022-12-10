@@ -27,15 +27,15 @@ public class Program
     /// <returns>status code</returns>
     public static int Main(string[] args)
         => new Program()
-            .Startup(args);
+            .Run(args);
 
     /// <summary>
-    /// starts the program using command line arguments
+    /// run the command line arguments
     /// </summary>
     /// <param name="args">command line arguments</param>
     /// <returns>exit code</returns>
     /// <exception cref="Exception"></exception>
-    public int Startup(string[] args)
+    public int Run(string[] args)
     {
         try
         {
