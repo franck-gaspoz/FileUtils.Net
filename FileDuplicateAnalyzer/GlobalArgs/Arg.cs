@@ -15,6 +15,9 @@ internal abstract class Arg
 
     public int ParametersCount { get; private set; }
 
+    private readonly List<string> _parameters = new();
+    public IReadOnlyList<string> Parameters => _parameters;
+
     public Arg(
         string name,
         IConfiguration config,
@@ -33,7 +36,18 @@ internal abstract class Arg
 
     public void ParseParameters(List<string> args, int index)
     {
-
+        var expectedCount = ParametersCount;
+        var startIndex = index;
+        args.RemoveAt(startIndex);
+        while (expectedCount > 0)
+        {
+            index++;
+            if (!args.Any())
+                throw new ArgumentException(_texts._("MissingArgumentValue", index, Name));
+            _parameters.Add(args[startIndex]);
+            args.RemoveAt(startIndex);
+            index++;
+        }
     }
 
     public static string ClassNameToArgName(string name)
@@ -53,4 +67,3 @@ internal abstract class Arg
             ? ShortArgNamePrefix
             : LongArgNamePrefix;
 }
-

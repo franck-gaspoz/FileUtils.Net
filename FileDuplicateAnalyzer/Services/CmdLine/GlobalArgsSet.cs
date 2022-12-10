@@ -30,7 +30,7 @@ internal class GlobalArgsSet
             argName = argName[1..];
         if (_args.TryGetValue(argName, out var classType))
         {
-            arg = serviceProvider.GetRequiredService<Arg>();
+            arg = (Arg)serviceProvider.GetRequiredService(classType);
             return true;
         }
         return false;
