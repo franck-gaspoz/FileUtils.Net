@@ -38,7 +38,7 @@ public class Program
     /// <exception cref="Exception"></exception>
     public int Run(string[] args)
     {
-        IOutput? output = null;
+        var blankLine = false;
         try
         {
             var argList = args.ToList();
@@ -46,20 +46,25 @@ public class Program
             host.StartAsync();
 
             var texts = host.Services.GetRequiredService<Texts>();
-            output = host.Services.GetRequiredService<IOutput>();
+            var output = host.Services.GetRequiredService<IOutput>();
 
             if (args.Length == 0)
                 throw new Exception(texts._("MissingArguments"));
 
             var command = GetCommand(texts, args[0]);
             output.WriteLine();
+            blankLine = true;
+
             var exitCode = command.Run(argList.ToArray()[1..]);
+
             output.WriteLine();
+
             return exitCode;
         }
         catch (Exception ex)
         {
-            Console.Error.WriteLine();
+            if (!blankLine)
+                Console.Error.WriteLine();
             Console.Error.WriteLine(ex.Message);
             Console.Error.WriteLine();
             return ExitFail;
