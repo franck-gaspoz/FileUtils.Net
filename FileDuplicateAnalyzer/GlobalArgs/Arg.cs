@@ -31,7 +31,7 @@ internal abstract class Arg
         _config.GetValue<string>("GlobalArgs:" + Name)!
         ?? _texts._("GlobalArgHelpNotFound", Name)!;
 
-    public void ParseParameters(List<string> args)
+    public void ParseParameters(List<string> args, int index)
     {
 
     }

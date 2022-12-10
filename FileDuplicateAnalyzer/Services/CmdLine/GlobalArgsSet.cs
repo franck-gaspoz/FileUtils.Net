@@ -38,10 +38,13 @@ internal class GlobalArgsSet
 
     public Dictionary<string, Arg> Parse(
         IServiceProvider serviceProvider,
-        List<string> strs)
+        List<string> args)
     {
         Dictionary<string, Arg> res = new();
-        Stack<string>? stack = new(strs);
+        var stackArgs = args.ToList();
+        stackArgs.Reverse();
+        Stack<string>? stack = new(stackArgs);
+        var index = 0;
         while (stack.Count > 0)
         {
             var str = stack.Pop();
@@ -51,8 +54,9 @@ internal class GlobalArgsSet
                 out var arg))
             {
                 res.Add(str, arg);
-                //arg.ParseParameters()
+                arg.ParseParameters(args, index);
             }
+            index++;
         }
         return res;
     }
