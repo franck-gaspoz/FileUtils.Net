@@ -15,7 +15,7 @@ internal abstract class Arg
 
     public int ParametersCount { get; private set; }
 
-    private readonly List<string> _parameters = new();
+    protected readonly List<string> _parameters = new();
     public IReadOnlyList<string> Parameters => _parameters;
 
     public Arg(

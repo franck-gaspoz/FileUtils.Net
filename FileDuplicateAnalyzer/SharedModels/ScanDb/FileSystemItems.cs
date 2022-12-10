@@ -1,4 +1,4 @@
-﻿namespace FileDuplicateAnalyzer.SharedModels;
+﻿namespace FileDuplicateAnalyzer.SharedModels.ScanDb;
 
 [Serializable]
 internal sealed class FileSystemItems
