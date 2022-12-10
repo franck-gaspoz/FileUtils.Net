@@ -1,7 +1,5 @@
 ﻿using FileDuplicateAnalyzer.Commands;
-using FileDuplicateAnalyzer.GlobalArgs;
 using FileDuplicateAnalyzer.Services.CmdLine;
-using FileDuplicateAnalyzer.Services.IO;
 using FileDuplicateAnalyzer.Services.Text;
 
 using Microsoft.Extensions.Configuration;
@@ -29,32 +27,36 @@ public class Program
     /// <param name="args">arguments</param>
     /// <returns>status code</returns>
     public static int Main(string[] args)
+        => new Program()
+            .Startup(args);
+
+    /// <summary>
+    /// starts the program using command line arguments
+    /// </summary>
+    /// <param name="args">command line arguments</param>
+    /// <returns>exit code</returns>
+    /// <exception cref="Exception"></exception>
+    public int Startup(string[] args)
     {
         try
         {
-            return new Program()
-                .Startup(args);
+            var argList = args.ToList();
+            var host = CreateHost(argList);
+            host.StartAsync();
+
+            var texts = host.Services.GetRequiredService<Texts>();
+
+            if (args.Length == 0)
+                throw new Exception(texts._("MissingArguments"));
+
+            var command = GetCommand(texts, args[0]);
+            return command.Run(argList.ToArray()[1..]);
         }
         catch (Exception ex)
         {
             Console.Error.WriteLine(ex.Message);
             return ExitFail;
         }
-    }
-
-    internal int Startup(string[] args)
-    {
-        var argList = args.ToList();
-        var host = CreateHost(argList);
-        host.StartAsync();
-
-        var texts = host.Services.GetRequiredService<Texts>();
-
-        if (args.Length == 0)
-            throw new Exception(texts._("MissingArguments"));
-
-        var command = GetCommand(texts, args[0]);
-        return command.Run(argList.ToArray()[1..]);
     }
 
     private IHost CreateHost(List<string> args)
@@ -71,95 +73,19 @@ public class Program
                         configure.AddJsonFile(cultureConfigFileName, optional: false);
                 })
             .ConfigureServices(
-                services =>
-                {
-                    services.AddSingleton<Texts>();
-                    AddCommands(services);
-                    AddArguments(services);
-                    ParseGlobalArguments(args, services);
-                    ConfigureOutput(services);
-                });
+                services => services
+                    .AddSingleton<Texts>()
+                    .AddCommands(out _commandSet)
+                    .AddArguments(out _globalArgsSet)
+                    .ParseGlobalArguments(
+                        args,
+                        _globalArgsSet,
+                        out _settedGlobalArgsSet)
+                    .ConfigureOutput());
 
         var host = hostBuilder.Build();
         _serviceProvider = host.Services;
         return host;
-    }
-
-    private void ParseGlobalArguments(List<string> args, IServiceCollection services)
-    {
-        _settedGlobalArgsSet = new();
-        foreach (var kvp in _globalArgsSet!.Parse(
-            services.BuildServiceProvider(),
-            args))
-        {
-            _settedGlobalArgsSet.Add(kvp.Value);
-        }
-        services.AddSingleton(_settedGlobalArgsSet);
-    }
-
-    private static void ConfigureOutput(IServiceCollection services)
-    {
-        var serviceProvider = services.BuildServiceProvider();
-        var settedGlobalArgs = serviceProvider.GetRequiredService<SettedGlobalArgsSet>();
-
-        if (!settedGlobalArgs.Contains<SGlobalArg>())
-            services.AddSingleton<IOutput, Output>();
-        else
-            services.AddSingleton<IOutput, SilentOutput>();
-    }
-
-    private void AddArguments(IServiceCollection services)
-    {
-        _globalArgsSet = new();
-
-        foreach (var classType in
-            GetType()
-                .Assembly
-                .GetTypes())
-        {
-            if (classType.InheritsFrom(typeof(GlobalArg)))
-            {
-                var argName = GlobalArg.ClassNameToArgName(
-                    classType.Name);
-
-                _globalArgsSet.Add(argName, classType);
-                services.AddTransient(classType);
-
-                /*if (GlobalArgsSet.ExistsInArgList(
-                    classType, args
-                    ))
-                {
-                    string? prefixedName = GlobalArg.GetPrefixFromArgName(argName)
-                        + argName;
-                    args.Remove(prefixedName);
-                    _settedGlobalArgsSet.Add(argName, classType);
-                }*/
-            }
-        }
-
-        services.AddSingleton(_globalArgsSet);
-    }
-
-    private void AddCommands(IServiceCollection services)
-    {
-        _commandSet = new(services.BuildServiceProvider().GetRequiredService<Texts>());
-
-        foreach (var classType in
-            GetType()
-                .Assembly
-                .GetTypes())
-        {
-            if (classType.InheritsFrom(typeof(Command)))
-            {
-                services.AddSingleton(classType);
-
-                _commandSet.Add(
-                    Command.ClassNameToCommandName(classType.Name),
-                    classType);
-            }
-        }
-
-        services.AddSingleton(_commandSet);
     }
 
     private Command GetCommand(Texts texts, string commandName)
