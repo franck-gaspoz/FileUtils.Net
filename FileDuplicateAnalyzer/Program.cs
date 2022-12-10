@@ -18,7 +18,6 @@ public class Program
     private IServiceProvider? _serviceProvider;
     private CommandsSet? _commandSet;
     private GlobalArgsSet? _globalArgsSet;
-    private SettedGlobalArgsSet? _settedGlobalArgsSet;
 
     /// <summary>
     /// command line input
@@ -80,7 +79,7 @@ public class Program
                     .ParseGlobalArguments(
                         args,
                         _globalArgsSet,
-                        out _settedGlobalArgsSet)
+                        out _)
                     .ConfigureOutput());
 
         var host = hostBuilder.Build();
