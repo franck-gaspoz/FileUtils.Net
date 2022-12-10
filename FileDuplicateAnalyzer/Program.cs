@@ -77,7 +77,7 @@ public class Program
                     AddCommands(services);
                     AddArguments(services);
                     ParseGlobalArguments(args, services);
-                    ConfigureOutput(services, hostBuilder);
+                    ConfigureOutput(services);
                 });
 
         var host = hostBuilder.Build();
@@ -97,25 +97,15 @@ public class Program
         services.AddSingleton(_settedGlobalArgsSet);
     }
 
-    private static void ConfigureOutput(
-        IServiceCollection services,
-        IHostBuilder hostBuilder)
+    private static void ConfigureOutput(IServiceCollection services)
     {
         var serviceProvider = services.BuildServiceProvider();
         var settedGlobalArgs = serviceProvider.GetRequiredService<SettedGlobalArgsSet>();
 
         if (!settedGlobalArgs.Contains<SGlobalArg>())
-        {
-            hostBuilder
-                .ConfigureServices(services =>
-                    services.AddSingleton<IOutput, Output>());
-        }
+            services.AddSingleton<IOutput, Output>();
         else
-        {
-            hostBuilder
-                .ConfigureServices(services =>
-                    services.AddSingleton<IOutput, SilentOutput>());
-        }
+            services.AddSingleton<IOutput, SilentOutput>();
     }
 
     private void AddArguments(IServiceCollection services)
