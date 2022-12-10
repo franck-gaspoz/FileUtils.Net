@@ -33,7 +33,7 @@ internal sealed class Texts
         bool noRecurse,
         params object?[] parameters)
     {
-        string? txt = _config.GetValue<string>(textId);
+        var txt = _config.GetValue<string>(textId);
         return txt is null
             ? !noRecurse
                 ? T("UnknownText", true, parameters)

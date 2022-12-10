@@ -47,23 +47,23 @@ internal sealed class HelpCommand : Command
         if (args.Length == 0)
         {
             _out.WriteLine("commands:");
-            foreach (KeyValuePair<string, Type> kvp in _commandsSet.Commands)
+            foreach (var kvp in _commandsSet.Commands)
             {
-                Command command = (Command)_serviceProvider.GetRequiredService(kvp.Value);
+                var command = (Command)_serviceProvider.GetRequiredService(kvp.Value);
                 _out.WriteLine(kvp.Key + " : " + command.ShortDescription());
             }
             _out.WriteLine();
             _out.WriteLine("global args:");
-            foreach (KeyValuePair<string, Type> kvp in _globalArgsSet.Args)
+            foreach (var kvp in _globalArgsSet.Args)
             {
-                GlobalArg? globalArg = (GlobalArg)_serviceProvider.GetRequiredService(kvp.Value);
+                var globalArg = (GlobalArg)_serviceProvider.GetRequiredService(kvp.Value);
                 _out.WriteLine(kvp.Key + " : " + globalArg.Description());
             }
         }
         else
         {
-            Type commandType = _commandsSet.Get(args[0]);
-            Command? command = (Command)_serviceProvider.GetRequiredService(commandType);
+            var commandType = _commandsSet.Get(args[0]);
+            var command = (Command)_serviceProvider.GetRequiredService(commandType);
             _out.WriteLine(command.LongDescription());
         }
         Sep();

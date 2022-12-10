@@ -26,7 +26,7 @@ internal sealed class CommandsSet
     /// <exception cref="ArgumentException">unknown command</exception>
     /// <returns></returns>
     public Type Get(
-        string name) => !_commands.TryGetValue(name, out Type? commandType)
+        string name) => !_commands.TryGetValue(name, out var commandType)
             ? throw new ArgumentException(_texts._("UnknownCommand", name))
             : commandType;
 }

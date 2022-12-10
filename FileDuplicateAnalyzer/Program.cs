@@ -44,29 +44,29 @@ public class Program
 
     internal int Startup(string[] args)
     {
-        List<string>? argList = args.ToList();
-        IHost? host = CreateHost(argList);
+        var argList = args.ToList();
+        var host = CreateHost(argList);
         host.StartAsync();
 
-        Texts texts = host.Services.GetRequiredService<Texts>();
+        var texts = host.Services.GetRequiredService<Texts>();
 
         if (args.Length == 0)
             throw new Exception(texts._("MissingArguments"));
 
-        Command? command = GetCommand(texts, args[0]);
+        var command = GetCommand(texts, args[0]);
         return command.Run(argList.ToArray()[1..]);
     }
 
     private IHost CreateHost(List<string> args)
     {
-        IHostBuilder? hostBuilder = Host.CreateDefaultBuilder();
+        var hostBuilder = Host.CreateDefaultBuilder();
 
         hostBuilder
             .ConfigureAppConfiguration(
                 configure =>
                 {
                     configure.AddJsonFile("config/appSettings.json", optional: false);
-                    string? cultureConfigFileName = $"config/appSettings.{Thread.CurrentThread.CurrentCulture.Name}.json";
+                    var cultureConfigFileName = $"config/appSettings.{Thread.CurrentThread.CurrentCulture.Name}.json";
                     if (File.Exists(cultureConfigFileName))
                         configure.AddJsonFile(cultureConfigFileName, optional: false);
                 })
@@ -75,12 +75,15 @@ public class Program
                 {
                     services.AddSingleton<Texts>();
                     AddCommands(services);
-                    AddArguments(services, args);
+                    AddArguments(services);
+                    var globalArgs = _globalArgsSet!.Parse(
+                        services.BuildServiceProvider(),
+                        args);
                 });
 
         ConfigureOutput(args, hostBuilder);
 
-        IHost? host = hostBuilder.Build();
+        var host = hostBuilder.Build();
         _serviceProvider = host.Services;
         return host;
     }
@@ -101,27 +104,25 @@ public class Program
         }
     }
 
-    private void AddArguments(
-        IServiceCollection services,
-        List<string> args)
+    private void AddArguments(IServiceCollection services)
     {
         _globalArgsSet = new();
         _settedGlobalArgsSet = new();
 
-        foreach (Type classType in
+        foreach (var classType in
             GetType()
                 .Assembly
                 .GetTypes())
         {
             if (classType.InheritsFrom(typeof(GlobalArg)))
             {
-                string? argName = GlobalArg.ClassNameToArgName(
+                var argName = GlobalArg.ClassNameToArgName(
                     classType.Name);
 
                 _globalArgsSet.Add(argName, classType);
-                services.AddSingleton(classType);
+                services.AddTransient(classType);
 
-                if (GlobalArgsSet.ExistsInArgList(
+                /*if (GlobalArgsSet.ExistsInArgList(
                     classType, args
                     ))
                 {
@@ -129,7 +130,7 @@ public class Program
                         + argName;
                     args.Remove(prefixedName);
                     _settedGlobalArgsSet.Add(argName, classType);
-                }
+                }*/
             }
         }
 
@@ -140,7 +141,7 @@ public class Program
     {
         _commandSet = new(services.BuildServiceProvider().GetRequiredService<Texts>());
 
-        foreach (Type classType in
+        foreach (var classType in
             GetType()
                 .Assembly
                 .GetTypes())
@@ -159,7 +160,7 @@ public class Program
     }
 
     private Command GetCommand(Texts texts, string commandName)
-        => !_commandSet!.Commands.TryGetValue(commandName, out Type? commandType)
+        => !_commandSet!.Commands.TryGetValue(commandName, out var commandType)
             ? throw new Exception(texts._("UnknownCommand", commandName))
             : (Command)_serviceProvider!.GetRequiredService(commandType);
 }

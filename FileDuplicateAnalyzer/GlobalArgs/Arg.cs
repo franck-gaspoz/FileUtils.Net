@@ -13,14 +13,27 @@ internal abstract class Arg
 
     public string Name { get; private set; }
 
+    public int ParametersCount { get; private set; }
+
     public Arg(
         string name,
         IConfiguration config,
-        Texts texts)
+        Texts texts,
+        int parametersCount = 0)
     {
         Name = name;
         _config = config;
         _texts = texts;
+        ParametersCount = parametersCount;
+    }
+
+    public string Description() =>
+        _config.GetValue<string>("GlobalArgs:" + Name)!
+        ?? _texts._("GlobalArgHelpNotFound", Name)!;
+
+    public void ParseParameters(List<string> args)
+    {
+
     }
 
     public static string ClassNameToArgName(string name)
@@ -29,7 +42,7 @@ internal abstract class Arg
 
     public static string GetPrefixFromClassName(string name)
     {
-        string? argName = ClassNameToArgName(name);
+        var argName = ClassNameToArgName(name);
         return argName.Length == 1
             ? ShortArgNamePrefix
             : LongArgNamePrefix;
@@ -39,9 +52,5 @@ internal abstract class Arg
         => name.Length == 1
             ? ShortArgNamePrefix
             : LongArgNamePrefix;
-
-    public string Description() =>
-        _config.GetValue<string>("GlobalArgs:" + Name)!
-        ?? _texts._("GlobalArgHelpNotFound", Name)!;
 }
 
