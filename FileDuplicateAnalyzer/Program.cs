@@ -1,5 +1,6 @@
 ﻿using FileDuplicateAnalyzer.Commands;
 using FileDuplicateAnalyzer.Services.CmdLine;
+using FileDuplicateAnalyzer.Services.IO;
 using FileDuplicateAnalyzer.Services.Text;
 
 using Microsoft.Extensions.Configuration;
@@ -37,6 +38,7 @@ public class Program
     /// <exception cref="Exception"></exception>
     public int Run(string[] args)
     {
+        IOutput? output = null;
         try
         {
             var argList = args.ToList();
@@ -44,16 +46,22 @@ public class Program
             host.StartAsync();
 
             var texts = host.Services.GetRequiredService<Texts>();
+            output = host.Services.GetRequiredService<IOutput>();
 
             if (args.Length == 0)
                 throw new Exception(texts._("MissingArguments"));
 
             var command = GetCommand(texts, args[0]);
-            return command.Run(argList.ToArray()[1..]);
+            output.WriteLine();
+            var exitCode = command.Run(argList.ToArray()[1..]);
+            output.WriteLine();
+            return exitCode;
         }
         catch (Exception ex)
         {
+            Console.Error.WriteLine();
             Console.Error.WriteLine(ex.Message);
+            Console.Error.WriteLine();
             return ExitFail;
         }
     }

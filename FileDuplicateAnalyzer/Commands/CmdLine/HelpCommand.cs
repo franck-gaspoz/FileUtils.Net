@@ -39,8 +39,13 @@ internal sealed class HelpCommand : Command
         CheckMaxArgs(args, 1);
 
         Sep();
+        var date =
+            DateOnly.ParseExact(
+            _config.GetValue<string>("App:ReleaseDate")!,
+            "dd/MM/yyyy",
+            null);
         _out.WriteLine(_config.GetValue<string>("App:Title")!
-            + $" ({Assembly.GetExecutingAssembly().GetName().Version})");
+            + $" ({Assembly.GetExecutingAssembly().GetName().Version} {date})");
         _out.WriteLine("culture: " + Thread.CurrentThread.CurrentCulture.Name);
         Sep();
 
