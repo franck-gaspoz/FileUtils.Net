@@ -66,10 +66,11 @@ public class Program
             .ConfigureAppConfiguration(
                 configure =>
                 {
-                    configure.AddJsonFile("config/appSettings.json", optional: false);
-                    var cultureConfigFileName = $"config/appSettings.{Thread.CurrentThread.CurrentCulture.Name}.json";
-                    if (File.Exists(cultureConfigFileName))
-                        configure.AddJsonFile(cultureConfigFileName, optional: false);
+                    configure.AddJsonFile(
+                        ConfigFilePath,
+                        optional: false);
+                    var cultureConfigFileName = $"{ConfigFilePrefix}{Thread.CurrentThread.CurrentCulture.Name}{ConfigFilePostfix}";
+                    configure.AddJsonFile(cultureConfigFileName, optional: false);
                 })
             .ConfigureServices(
                 services => services

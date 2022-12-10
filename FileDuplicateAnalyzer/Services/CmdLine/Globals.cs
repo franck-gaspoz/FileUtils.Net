@@ -7,5 +7,9 @@ internal static class Globals
 
     public const string ShortArgNamePrefix = "-";
     public const string LongArgNamePrefix = "--";
+
+    public const string ConfigFilePrefix = "config/appSettings.";
+    public const string ConfigFilePostfix = ".json";
+    public const string ConfigFilePath = "config/appSettings.json";
 }
 
