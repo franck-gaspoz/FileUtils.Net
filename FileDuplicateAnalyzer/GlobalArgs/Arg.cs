@@ -34,19 +34,20 @@ internal abstract class Arg
         _config.GetValue<string>("GlobalArgs:" + Name)!
         ?? _texts._("GlobalArgHelpNotFound", Name)!;
 
-    public void ParseParameters(List<string> args, int index)
+    public string Prefix => GetPrefixFromArgName(Name);
+
+    public void ParseParameters(List<string> args, int index, int position)
     {
         var expectedCount = ParametersCount;
-        var startIndex = index;
-        args.RemoveAt(startIndex);
+        args.RemoveAt(index);
         while (expectedCount > 0)
         {
-            index++;
+            position++;
             if (!args.Any())
-                throw new ArgumentException(_texts._("MissingArgumentValue", index, Name));
-            _parameters.Add(args[startIndex]);
-            args.RemoveAt(startIndex);
-            index++;
+                throw new ArgumentException(_texts._("MissingArgumentValue", position, Name));
+            _parameters.Add(args[index]);
+            args.RemoveAt(index);
+            expectedCount--;
         }
     }
 

@@ -76,9 +76,7 @@ public class Program
                     services.AddSingleton<Texts>();
                     AddCommands(services);
                     AddArguments(services);
-                    var globalArgs = _globalArgsSet!.Parse(
-                        services.BuildServiceProvider(),
-                        args);
+                    ParseGlobalArguments(args, services);
                 });
 
         ConfigureOutput(args, hostBuilder);
@@ -88,9 +86,26 @@ public class Program
         return host;
     }
 
-    private static void ConfigureOutput(List<string> args, IHostBuilder hostBuilder)
+    private void ParseGlobalArguments(List<string> args, IServiceCollection services)
     {
-        if (!GlobalArgsSet.ExistsInArgList(typeof(SGlobalArg), args))
+        _settedGlobalArgsSet = new();
+        foreach (var kvp in _globalArgsSet!.Parse(
+            services.BuildServiceProvider(),
+            args))
+        {
+            _settedGlobalArgsSet.Add(kvp.Value);
+        }
+        services.AddSingleton(_settedGlobalArgsSet);
+    }
+
+    private static void ConfigureOutput(
+        IServiceCollection services,
+        IHostBuilder hostBuilder)
+    {
+        var serviceProvider = services.BuildServiceProvider();
+        var settedGlobalArgs = serviceProvider.GetRequiredService<SettedGlobalArgsSet>();
+
+        if (!settedGlobalArgs.Contains<SGlobalArg>())
         {
             hostBuilder
                 .ConfigureServices(services =>
@@ -107,7 +122,6 @@ public class Program
     private void AddArguments(IServiceCollection services)
     {
         _globalArgsSet = new();
-        _settedGlobalArgsSet = new();
 
         foreach (var classType in
             GetType()

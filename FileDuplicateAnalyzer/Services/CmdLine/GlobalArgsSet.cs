@@ -18,7 +18,7 @@ internal class GlobalArgsSet
         Type argType)
         => _args.Add(name, argType);
 
-    private bool TryGet(
+    private bool TryBuild(
         IServiceProvider serviceProvider,
         string str,
         [NotNullWhen(true)]
@@ -41,22 +41,24 @@ internal class GlobalArgsSet
         List<string> args)
     {
         Dictionary<string, Arg> res = new();
-        var stackArgs = args.ToList();
-        stackArgs.Reverse();
-        Stack<string>? stack = new(stackArgs);
         var index = 0;
-        while (stack.Count > 0)
+        var position = 0;
+        while (index < args.Count)
         {
-            var str = stack.Pop();
-            if (TryGet(
+            var str = args[index];
+            if (TryBuild(
                 serviceProvider,
                 str,
                 out var arg))
             {
                 res.Add(str, arg);
-                arg.ParseParameters(args, index);
+                arg.ParseParameters(args, index, position);
             }
-            index++;
+            else
+            {
+                index++;
+            }
+            position++;
         }
         return res;
     }
