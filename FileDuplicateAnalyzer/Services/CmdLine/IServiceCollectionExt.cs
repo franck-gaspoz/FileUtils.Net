@@ -7,9 +7,11 @@ using FileDuplicateAnalyzer.Services.Text;
 
 using Microsoft.Extensions.DependencyInjection;
 
+using cons = AnsiVtConsole.NetCore;
+
 namespace FileDuplicateAnalyzer.Services.CmdLine;
 
-internal static class IServiceCollectiionExt
+internal static class IServiceCollectionExt
 {
     public static IServiceCollection AddCommands(
         this IServiceCollection services,
@@ -68,9 +70,10 @@ internal static class IServiceCollectiionExt
         var settedGlobalArgs = serviceProvider.GetRequiredService<SettedGlobalArgsSet>();
 
         if (!settedGlobalArgs.Contains<SGlobalArg>())
-            services.AddSingleton<IOutput, Output>();
+            services.AddSingleton<IConsole, IO.Console>();
         else
-            services.AddSingleton<IOutput, SilentOutput>();
+            services.AddSingleton<IConsole, ConsoleMute>();
+        services.AddSingleton<cons.IAnsiVtConsole, cons.AnsiVtConsole>();
 
         return services;
     }

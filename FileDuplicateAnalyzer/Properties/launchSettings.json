@@ -2,7 +2,7 @@
   "profiles": {
     "FileDuplicateAnalyzer": {
       "commandName": "Project",
-      "commandLineArgs": "help scan -s -c config.json"
+      "commandLineArgs": "help"
     }
   }
 }

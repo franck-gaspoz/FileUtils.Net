@@ -13,7 +13,7 @@ internal sealed class MakeDbCommand : Command
 {
     public MakeDbCommand(
         IConfiguration config,
-        IOutput output,
+        IConsole output,
         Texts texts) : base(config, output, texts)
     {
     }

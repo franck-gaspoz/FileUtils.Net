@@ -7,18 +7,18 @@ namespace FileDuplicateAnalyzer.Commands;
 
 internal abstract class Command
 {
-    protected readonly IOutput _out;
+    protected readonly IConsole _console;
     protected readonly Texts _texts;
     protected readonly IConfiguration _config;
 
     public Command(
         IConfiguration config,
-        IOutput ouput,
+        IConsole console,
         Texts texts)
     {
         _config = config;
         _texts = texts;
-        _out = ouput;
+        _console = console;
     }
 
     /// <summary>

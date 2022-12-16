@@ -9,6 +9,8 @@ using Microsoft.Extensions.Hosting;
 
 using static FileDuplicateAnalyzer.Services.CmdLine.Globals;
 
+using cons = AnsiVtConsole.NetCore;
+
 namespace FileDuplicateAnalyzer;
 
 /// <summary>
@@ -38,37 +40,56 @@ public class Program
     /// <exception cref="Exception"></exception>
     public int Run(string[] args)
     {
-        var blankLine = false;
+        var argList = args.ToList();
+
         try
         {
-            var argList = args.ToList();
             var host = CreateHost(argList);
             host.StartAsync();
-
             var texts = host.Services.GetRequiredService<Texts>();
-            var output = host.Services.GetRequiredService<IOutput>();
+            var console = host.Services.GetRequiredService<IConsole>();
+            var lineBreak = false;
+            try
+            {
+                if (args.Length == 0)
+                    throw new Exception(texts._("MissingArguments"));
 
-            if (args.Length == 0)
-                throw new Exception(texts._("MissingArguments"));
+                var command = GetCommand(texts, args[0]);
+                console.Out?.WriteLn();
+                lineBreak = true;
+                var exitCode = command.Run(argList.ToArray()[1..]);
 
-            var command = GetCommand(texts, args[0]);
-            output.WriteLine();
-            blankLine = true;
+                console.Out?.WriteLn();
 
-            var exitCode = command.Run(argList.ToArray()[1..]);
-
-            output.WriteLine();
-
-            return exitCode;
+                return exitCode;
+            }
+            catch (Exception commandExecutionException)
+            {
+                return ExitWithError(
+                    commandExecutionException,
+                    console,
+                    lineBreak);
+            }
         }
-        catch (Exception ex)
+        catch (Exception hostBuilderException)
         {
-            if (!blankLine)
-                Console.Error.WriteLine();
-            Console.Error.WriteLine(ex.Message);
-            Console.Error.WriteLine();
-            return ExitFail;
+            return ExitWithError(
+                hostBuilderException,
+                new Services.IO.Console(new cons.AnsiVtConsole()),
+                true);
         }
+    }
+
+    private static int ExitWithError(
+        Exception ex,
+        IConsole console,
+        bool lineBreak)
+    {
+        if (!lineBreak)
+            console.Err?.Logln();
+        console.Err?.Logln(ex.Message);
+        console.Err?.Logln();
+        return ExitFail;
     }
 
     private IHost CreateHost(List<string> args)

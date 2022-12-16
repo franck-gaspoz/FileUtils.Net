@@ -23,16 +23,16 @@ internal sealed class HelpCommand : Command
         IConfiguration config,
         CommandsSet commands,
         GlobalArgsSet globalArgsSet,
-        IOutput output,
+        IConsole console,
         Texts texts,
-        IServiceProvider serviceProvider) : base(config, output, texts)
+        IServiceProvider serviceProvider) : base(config, console, texts)
     {
         _globalArgsSet = globalArgsSet;
         _serviceProvider = serviceProvider;
         _commandsSet = commands;
     }
 
-    private void Sep() => _out.WriteLine("".PadLeft(50, '-'));
+    private void Sep() => _console.Out?.WriteLn("(bon,f=cyan)" + "".PadLeft(50, '-'));
 
     public override int Run(string[] args)
     {
@@ -42,35 +42,39 @@ internal sealed class HelpCommand : Command
         var date =
             DateOnly.ParseExact(
             _config.GetValue<string>("App:ReleaseDate")!,
-            "dd/MM/yyyy",
+            Globals.SettingsDateFormat,
             null);
-        _out.WriteLine(_config.GetValue<string>("App:Title")!
+        _console.Out?.WriteLn("(bon,f=cyan)" + _config.GetValue<string>("App:Title")!
             + $" ({Assembly.GetExecutingAssembly().GetName().Version} {date})");
-        _out.WriteLine("culture: " + Thread.CurrentThread.CurrentCulture.Name);
         Sep();
 
         if (args.Length == 0)
         {
-            _out.WriteLine("commands:");
+            _console.Out?.WriteLn(_texts._("GlobalSyntax"));
+            _console.Out?.WriteLn();
+
+            _console.Out?.WriteLn("(bon,f=yellow)" + _texts._("Commands"));
             foreach (var kvp in _commandsSet.Commands)
             {
                 var command = (Command)_serviceProvider.GetRequiredService(kvp.Value);
-                _out.WriteLine(kvp.Key + " : " + command.ShortDescription());
+                _console.Out?.WriteLn("(f=darkyellow)" + kvp.Key + "(rsf) : " + command.ShortDescription());
             }
-            _out.WriteLine();
-            _out.WriteLine("global args:");
+            _console.Out?.WriteLn();
+            _console.Out?.WriteLn("(bon,f=yellow)" + _texts._("GlobalArgs"));
             foreach (var kvp in _globalArgsSet.Args)
             {
                 var globalArg = (GlobalArg)_serviceProvider.GetRequiredService(kvp.Value);
-                _out.WriteLine(globalArg.Prefix + kvp.Key + " : " + globalArg.Description());
+                _console.Out?.WriteLn("(f=darkyellow)" + globalArg.Prefix + kvp.Key + "(rsf) : " + globalArg.Description());
             }
         }
         else
         {
             var commandType = _commandsSet.Get(args[0]);
             var command = (Command)_serviceProvider.GetRequiredService(commandType);
-            _out.WriteLine(command.LongDescription());
+            _console.Out?.WriteLn(command.LongDescription());
         }
+        _console.Out?.WriteLn();
+        _console.Out?.WriteLn(_texts._("CurrentCulture", Thread.CurrentThread.CurrentCulture.Name));
         Sep();
 
         return Globals.ExitOk;

@@ -12,7 +12,7 @@ internal sealed class ScanCommand : Command
 {
     public ScanCommand(
         IConfiguration config,
-        IOutput output,
+        IConsole output,
         Texts texts) : base(config, output, texts)
     {
     }

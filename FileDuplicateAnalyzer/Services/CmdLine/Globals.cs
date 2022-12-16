@@ -11,5 +11,7 @@ internal static class Globals
     public const string ConfigFilePrefix = "config/appSettings.";
     public const string ConfigFilePostfix = ".json";
     public const string ConfigFilePath = "config/appSettings.json";
+
+    public const string SettingsDateFormat = "dd/MM/yyyy";
 }
 
