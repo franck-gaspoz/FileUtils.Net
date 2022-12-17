@@ -32,7 +32,11 @@ internal sealed class HelpCommand : Command
         _commandsSet = commands;
     }
 
-    private void Sep() => _console.Out?.WriteLn("(bon,f=cyan)" + "".PadLeft(50, '-'));
+    private const string CyanBold = "(bon,f=cyan)";
+    private const string YellowUnderlineBold = "(bon,uon,f=yellow)";
+    private const string Green = "(bon,f=green)";
+
+    private void Sep() => _console.Out?.WriteLn(CyanBold + "".PadLeft(50, '-'));
 
     public override int Run(string[] args)
     {
@@ -44,7 +48,7 @@ internal sealed class HelpCommand : Command
             _config.GetValue<string>("App:ReleaseDate")!,
             Globals.SettingsDateFormat,
             null);
-        _console.Out?.WriteLn("(bon,f=cyan)" + _config.GetValue<string>("App:Title")!
+        _console.Out?.WriteLn(CyanBold + _config.GetValue<string>("App:Title")!
             + $" ({Assembly.GetExecutingAssembly().GetName().Version} {date})");
         Sep();
 
@@ -53,18 +57,18 @@ internal sealed class HelpCommand : Command
             _console.Out?.WriteLn(_texts._("GlobalSyntax"));
             _console.Out?.WriteLn();
 
-            _console.Out?.WriteLn("(bon,f=yellow)" + _texts._("Commands"));
+            _console.Out?.WriteLn(YellowUnderlineBold + _texts._("Commands"));
             foreach (var kvp in _commandsSet.Commands)
             {
                 var command = (Command)_serviceProvider.GetRequiredService(kvp.Value);
-                _console.Out?.WriteLn("(f=darkyellow)" + kvp.Key + "(rsf) : " + command.ShortDescription());
+                _console.Out?.WriteLn(Green + kvp.Key + "(tdoff) : " + command.ShortDescription());
             }
             _console.Out?.WriteLn();
-            _console.Out?.WriteLn("(bon,f=yellow)" + _texts._("GlobalArgs"));
+            _console.Out?.WriteLn(YellowUnderlineBold + _texts._("GlobalArgs"));
             foreach (var kvp in _globalArgsSet.Args)
             {
                 var globalArg = (GlobalArg)_serviceProvider.GetRequiredService(kvp.Value);
-                _console.Out?.WriteLn("(f=darkyellow)" + globalArg.Prefix + kvp.Key + "(rsf) : " + globalArg.Description());
+                _console.Out?.WriteLn(Green + globalArg.Prefix + kvp.Key + "(tdoff) : " + globalArg.Description());
             }
         }
         else
