@@ -36,9 +36,9 @@ internal sealed class HelpCommand : Command
     }
 
     private const string TitleColor = "(bon,f=cyan)";
-    private const string SectionTitleColor = "(bon,uon,f=yellow)";
+    private const string SectionTitleColor = "(uon,f=yellow,bon)";
     private const string CommandNameColor = "(bon,f=green)";
-    private const string ArgNameColor = "(bon,f=darkyellow)";
+    private const string ArgNameColor = "(f=darkyellow)";
     private const string ArgValueColor = "(bon,f=cyan)";
     private const string StOff = "(tdoff)";
 
@@ -50,7 +50,6 @@ internal sealed class HelpCommand : Command
 
         if (args.Length == 0)
         {
-            Console.Out.WriteLine();
             OutputSectionTitle(Texts._("Syntax"));
             DumpCommandSyntax(Texts._("GlobalSyntax"));
             Console.Out.WriteLine();
@@ -93,6 +92,7 @@ internal sealed class HelpCommand : Command
         Console.Out.WriteLine(TitleColor + Config.GetValue<string>("App:Title")!
             + $" ({Assembly.GetExecutingAssembly().GetName().Version} {date})");
         Sep();
+        Console.Out.WriteLine();
     }
 
     private void OutputSectionTitle(string text)
