@@ -15,10 +15,11 @@ internal sealed class ScanCommand : Command
     public ScanCommand(
         IConfiguration config,
         IAnsiVtConsole output,
-        Texts texts) : base(config, output, texts)
+        Texts texts) :
+            base(config, output, texts, 0, 0)
     {
     }
 
-    public override int Run(string[] args)
+    protected override int Execute(string[] args)
         => throw new NotImplementedException();
 }

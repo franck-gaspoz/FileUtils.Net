@@ -4,9 +4,7 @@ using FileDuplicateAnalyzer.Commands;
 using FileDuplicateAnalyzer.Services.CmdLine;
 using FileDuplicateAnalyzer.Services.Text;
 
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 
 using static FileDuplicateAnalyzer.Services.CmdLine.Globals;
 
@@ -19,10 +17,6 @@ namespace FileDuplicateAnalyzer;
 /// </summary>
 public class Program
 {
-    private IServiceProvider? _serviceProvider;
-    private CommandsSet? _commandSet;
-    private GlobalArgsSet? _globalArgsSet;
-
     /// <summary>
     /// command line input
     /// <para>FileDuplicateAnalyzer command [options]</para>
@@ -30,22 +24,20 @@ public class Program
     /// <param name="args">arguments</param>
     /// <returns>status code</returns>
     public static int Main(string[] args)
-        => new Program()
-            .Run(args);
+        => Program.Run(args);
 
     /// <summary>
     /// run the command line arguments
     /// </summary>
     /// <param name="args">command line arguments</param>
     /// <returns>exit code</returns>
-    /// <exception cref="Exception"></exception>
-    public int Run(string[] args)
+    public static int Run(string[] args)
     {
         var argList = args.ToList();
 
         try
         {
-            var host = CreateHost(argList);
+            var host = new AppHostBuilder(argList).AppHost;
             host.StartAsync();
             var texts = host.Services.GetRequiredService<Texts>();
             var console = host.Services.GetRequiredService<IAnsiVtConsole>();
@@ -53,11 +45,12 @@ public class Program
             try
             {
                 if (args.Length == 0)
-                    throw new Exception(texts._("MissingArguments"));
+                    throw new ArgumentException(texts._("MissingArguments"));
 
-                var command = GetCommand(texts, args[0]);
                 console.Out.WriteLine();
                 lineBreak = true;
+
+                var command = GetCommand(host.Services, args[0]);
                 var exitCode = command.Run(argList.ToArray()[1..]);
 
                 console.Out.WriteLine();
@@ -77,7 +70,7 @@ public class Program
             return ExitWithError(
                 hostBuilderException,
                 new cons.AnsiVtConsole(),
-                true);
+                false);
         }
     }
 
@@ -87,44 +80,16 @@ public class Program
         bool lineBreak)
     {
         if (!lineBreak)
-            console.Logger.LogError(string.Empty);
+            console.Logger.LogError();
         console.Logger.LogError(ex.Message);
-        console.Logger.LogError(string.Empty);
+        console.Logger.LogError();
         return ExitFail;
     }
 
-    private IHost CreateHost(List<string> args)
-    {
-        var hostBuilder = Host.CreateDefaultBuilder();
-
-        hostBuilder
-            .ConfigureAppConfiguration(
-                configure =>
-                {
-                    configure.AddJsonFile(
-                        ConfigFilePath,
-                        optional: false);
-                    var cultureConfigFileName = $"{ConfigFilePrefix}{Thread.CurrentThread.CurrentCulture.Name}{ConfigFilePostfix}";
-                    configure.AddJsonFile(cultureConfigFileName, optional: false);
-                })
-            .ConfigureServices(
-                services => services
-                    .AddSingleton<Texts>()
-                    .AddCommands(out _commandSet)
-                    .AddArguments(out _globalArgsSet)
-                    .ParseGlobalArguments(
-                        args,
-                        _globalArgsSet,
-                        out _)
-                    .ConfigureOutput());
-
-        var host = hostBuilder.Build();
-        _serviceProvider = host.Services;
-        return host;
-    }
-
-    private Command GetCommand(Texts texts, string commandName)
-        => !_commandSet!.Commands.TryGetValue(commandName, out var commandType)
-            ? throw new Exception(texts._("UnknownCommand", commandName))
-            : (Command)_serviceProvider!.GetRequiredService(commandType);
+    private static Command GetCommand(
+        IServiceProvider serviceProvider,
+        string commandName)
+            => serviceProvider.GetRequiredService<CommandsSet>()
+                .GetCommand(commandName);
 }
+

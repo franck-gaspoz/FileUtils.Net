@@ -2,7 +2,7 @@
   "profiles": {
     "FileDuplicateAnalyzer": {
       "commandName": "Project",
-      "commandLineArgs": "help -s"
+      "commandLineArgs": "help help"
     }
   }
 }

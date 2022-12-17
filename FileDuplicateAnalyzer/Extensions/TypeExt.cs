@@ -1,6 +1,9 @@
 ﻿namespace FileDuplicateAnalyzer;
 
-internal static class TypesExt
+/// <summary>
+/// Type extensions
+/// </summary>
+public static class TypeExt
 {
     /// <summary>
     /// indicates if a type inherits from another type. returns false if type is base type

@@ -13,81 +13,114 @@ namespace FileDuplicateAnalyzer.Services.CmdLine;
 
 internal static class IServiceCollectionExt
 {
+    /// <summary>
+    /// add commands founded in the executing assembly as injectable dependencies
+    /// </summary>
+    /// <param name="services">service collection</param>
+    /// <returns>service collection</returns>
     public static IServiceCollection AddCommands(
-        this IServiceCollection services,
-        out CommandsSet commandSet
+        this IServiceCollection services
         )
     {
-        commandSet = new CommandsSet(services.BuildServiceProvider().GetRequiredService<Texts>());
-
-        foreach (var classType in
-            Assembly
-                .GetExecutingAssembly()
-                .GetTypes())
-        {
-            if (classType.InheritsFrom(typeof(Command)))
+        services.AddSingleton(
+            serviceProvider =>
             {
-                services.AddSingleton(classType);
+                var commandSet = new CommandsSet(
+                    serviceProvider.GetRequiredService<Texts>(),
+                    serviceProvider);
 
-                commandSet.Add(
-                    Command.ClassNameToCommandName(classType.Name),
-                    classType);
+                foreach (var classType in
+                    Assembly
+                        .GetExecutingAssembly()
+                        .GetTypes())
+                {
+                    if (classType.InheritsFrom(typeof(Command)))
+                    {
+                        services.AddSingleton(classType);
+
+                        commandSet.Add(
+                            Command.ClassNameToCommandName(classType.Name),
+                            classType);
+                    }
+                }
+                return commandSet;
             }
-        }
-
-        services.AddSingleton(commandSet);
+        );
         return services;
     }
 
-    public static IServiceCollection AddArguments(
-        this IServiceCollection services,
-        out GlobalArgsSet globalArgsSet)
+    /// <summary>
+    /// add global arguments founded in the executing assembly as injectable dependencies
+    /// </summary>
+    /// <param name="services">service collection</param>
+    /// <returns>service collection</returns>
+    public static IServiceCollection AddGlobalArguments(
+        this IServiceCollection services)
     {
-        globalArgsSet = new GlobalArgsSet();
-
-        foreach (var classType in
-            Assembly
-                .GetExecutingAssembly()
-                .GetTypes())
-        {
-            if (classType.InheritsFrom(typeof(GlobalArg)))
+        services.AddSingleton(
+            serviceProvider =>
             {
-                var argName = GlobalArg.ClassNameToArgName(
-                    classType.Name);
+                var globalArgsSet = new GlobalArgsSet();
 
-                globalArgsSet.Add(argName, classType);
-                services.AddTransient(classType);
-            }
-        }
+                foreach (var classType in
+                    Assembly
+                        .GetExecutingAssembly()
+                        .GetTypes())
+                {
+                    if (classType.InheritsFrom(typeof(GlobalArg)))
+                    {
+                        var argName = GlobalArg.ClassNameToArgName(
+                            classType.Name);
 
-        services.AddSingleton(globalArgsSet);
+                        globalArgsSet.Add(argName, classType);
+                        services.AddTransient(classType);
+                    }
+                }
+
+                return globalArgsSet;
+            });
+
         return services;
     }
 
     public static IServiceCollection ConfigureOutput(this IServiceCollection services)
     {
-        services.AddSingleton<cons.IAnsiVtConsole, cons.AnsiVtConsole>();
-        var serviceProvider = services.BuildServiceProvider();
-        var settedGlobalArgs = serviceProvider.GetRequiredService<SettedGlobalArgsSet>();
-        var console = serviceProvider.GetRequiredService<cons.IAnsiVtConsole>();
-        console.Out.IsMute = settedGlobalArgs.Contains<SGlobalArg>();
+        services.AddSingleton<cons.IAnsiVtConsole>(
+            serviceProvider =>
+            {
+                var settedGlobalArgs = serviceProvider.GetRequiredService<SettedGlobalArgsSet>();
+                var console = new cons.AnsiVtConsole();
+                console.Out.IsMute = settedGlobalArgs.Contains<SGlobalArg>();
+                return console;
+            });
         return services;
     }
 
-    public static IServiceCollection ParseGlobalArguments(
+    /// <summary>
+    /// add global arguments founded in command line arguments as injectable dependencies
+    /// </summary>
+    /// <param name="services">service collection</param>
+    /// <param name="args">command line arguments</param>
+    /// <returns>service collection</returns>
+    public static IServiceCollection AddSettedGlobalArguments(
         this IServiceCollection services,
-        List<string> args,
-        GlobalArgsSet globalArgsSet,
-        out SettedGlobalArgsSet settedGlobalArgsSet)
+        List<string> args)
     {
-        settedGlobalArgsSet = new();
-        foreach (var kvp in globalArgsSet!.Parse(
-            services.BuildServiceProvider(),
-            args))
-        {
-            settedGlobalArgsSet.Add(kvp.Value);
-        }
-        services.AddSingleton(settedGlobalArgsSet);
+        services.AddSingleton<SettedGlobalArgsSet>(
+            serviceProvider =>
+            {
+                var globalArgsSet = serviceProvider.GetRequiredService<GlobalArgsSet>();
+                var settedGlobalArgsSet = new SettedGlobalArgsSet();
+                foreach (var kvp in globalArgsSet!.Parse(
+                    services.BuildServiceProvider(),
+                    args))
+                {
+                    settedGlobalArgsSet.Add(kvp.Value);
+                }
+                services.AddSingleton(settedGlobalArgsSet);
+                return settedGlobalArgsSet;
+            });
+
         return services;
     }
 }

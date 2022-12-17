@@ -2,10 +2,17 @@
 
 namespace FileDuplicateAnalyzer.Services.Text;
 
-internal sealed class Texts
+/// <summary>
+/// texts service
+/// </summary>
+public sealed class Texts
 {
     private readonly IConfiguration _config;
 
+    /// <summary>
+    /// build a new instance
+    /// </summary>
+    /// <param name="config">app config</param>
     public Texts(IConfiguration config)
         => _config = config;
 

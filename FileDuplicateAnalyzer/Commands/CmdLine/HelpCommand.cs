@@ -27,62 +27,119 @@ internal sealed class HelpCommand : Command
         GlobalArgsSet globalArgsSet,
         IAnsiVtConsole console,
         Texts texts,
-        IServiceProvider serviceProvider) : base(config, console, texts)
+        IServiceProvider serviceProvider) :
+            base(config, console, texts, 0, 1)
     {
         _globalArgsSet = globalArgsSet;
         _serviceProvider = serviceProvider;
         _commandsSet = commands;
     }
 
-    private const string CyanBold = "(bon,f=cyan)";
-    private const string YellowUnderlineBold = "(bon,uon,f=yellow)";
-    private const string Green = "(bon,f=green)";
+    private const string TitleColor = "(bon,f=cyan)";
+    private const string SectionTitleColor = "(bon,uon,f=yellow)";
+    private const string CommandNameColor = "(bon,f=green)";
+    private const string ArgNameColor = "(bon,f=darkyellow)";
+    private const string ArgValueColor = "(bon,f=cyan)";
+    private const string StOff = "(tdoff)";
 
-    private void Sep() => _console.Out.WriteLine(CyanBold + "".PadLeft(50, '-'));
+    private void Sep() => Console.Out.WriteLine(TitleColor + "".PadLeft(50, '-'));
 
-    public override int Run(string[] args)
+    protected override int Execute(string[] args)
     {
-        CheckMaxArgs(args, 1);
-
-        Sep();
-        var date =
-            DateOnly.ParseExact(
-            _config.GetValue<string>("App:ReleaseDate")!,
-            Globals.SettingsDateFormat,
-            null);
-        _console.Out.WriteLine(CyanBold + _config.GetValue<string>("App:Title")!
-            + $" ({Assembly.GetExecutingAssembly().GetName().Version} {date})");
-        Sep();
+        OutputAppTitle();
 
         if (args.Length == 0)
         {
-            _console.Out.WriteLine(_texts._("GlobalSyntax"));
-            _console.Out.WriteLine();
+            Console.Out.WriteLine();
+            OutputSectionTitle(Texts._("Syntax"));
+            DumpCommandSyntax(Texts._("GlobalSyntax"));
+            Console.Out.WriteLine();
+            Console.Out.WriteLine();
 
-            _console.Out.WriteLine(YellowUnderlineBold + _texts._("Commands"));
+            OutputSectionTitle(Texts._("Commands"));
             foreach (var kvp in _commandsSet.Commands)
             {
                 var command = (Command)_serviceProvider.GetRequiredService(kvp.Value);
-                _console.Out.WriteLine(Green + kvp.Key + "(tdoff) : " + command.ShortDescription());
+                Console.Out.WriteLine(CommandNameColor + kvp.Key + $"{StOff} : " + command.ShortDescription());
             }
-            _console.Out.WriteLine();
-            _console.Out.WriteLine(YellowUnderlineBold + _texts._("GlobalArgs"));
+            Console.Out.WriteLine();
+            OutputSectionTitle(Texts._("GlobalArgs"));
             foreach (var kvp in _globalArgsSet.Args)
             {
                 var globalArg = (GlobalArg)_serviceProvider.GetRequiredService(kvp.Value);
-                _console.Out.WriteLine(Green + globalArg.Prefix + kvp.Key + "(tdoff) : " + globalArg.Description());
+                Console.Out.WriteLine(ArgNameColor + globalArg.Prefix + kvp.Key + $"{StOff} : " + globalArg.Description());
             }
         }
         else
         {
-            var commandType = _commandsSet.Get(args[0]);
-            var command = (Command)_serviceProvider.GetRequiredService(commandType);
-            _console.Out.WriteLine(command.LongDescription());
+            var command = _commandsSet.GetCommandFromTypeName(args[0]);
+            DumpLongDescription(command.LongDescription());
         }
-        _console.Out.WriteLine();
-        _console.Out.WriteLine(_texts._("CurrentCulture", Thread.CurrentThread.CurrentCulture.Name));
+        Console.Out.WriteLine();
+        Console.Out.WriteLine(Texts._("CurrentCulture", Thread.CurrentThread.CurrentCulture.Name));
         Sep();
 
         return Globals.ExitOk;
     }
+
+    private void OutputAppTitle()
+    {
+        Sep();
+        var date =
+            DateOnly.ParseExact(
+            Config.GetValue<string>("App:ReleaseDate")!,
+            Globals.SettingsDateFormat,
+            null);
+        Console.Out.WriteLine(TitleColor + Config.GetValue<string>("App:Title")!
+            + $" ({Assembly.GetExecutingAssembly().GetName().Version} {date})");
+        Sep();
+    }
+
+    private void OutputSectionTitle(string text)
+        => Console.Out.WriteLine(SectionTitleColor + text + StOff);
+
+    private void DumpCommandSyntax(string text)
+    {
+        var args = text.Split(' ');
+        var cmdName = StringAt(0, ref args);
+
+        Console.Out.Write(CommandNameColor + cmdName + StOff);
+
+        for (var i = 1; i < args.Length; i++)
+        {
+            var arg = args[i];
+            arg = arg.StartsWith('-') ?
+                ArgNameColor + arg
+                : ArgValueColor + arg;
+
+            Console.Out.Write(" " + arg);
+        }
+
+        Console.Out.Write(StOff);
+    }
+
+    private void DumpLongDescription(string text)
+    {
+        var lines = text
+            .Replace("\r", "")
+            .Split('\n');
+
+        foreach (var line in lines)
+        {
+            var t = line.Split(':');
+            var desc = StringAt(1, ref t).Trim();
+            var descExists = !string.IsNullOrWhiteSpace(desc);
+
+            var cmdSyntax = StringAt(0, ref t).Trim();
+
+            DumpCommandSyntax(cmdSyntax);
+
+            if (descExists)
+                Console.Out.Write(" : " + desc);
+            Console.Out.WriteLine();
+        }
+    }
+
+    private static string StringAt(int i, ref string[] t)
+        => i <= t.Length ? t[i] : "";
 }
