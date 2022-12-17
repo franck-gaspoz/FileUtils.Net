@@ -56,11 +56,11 @@ public class Program
                     throw new Exception(texts._("MissingArguments"));
 
                 var command = GetCommand(texts, args[0]);
-                console.Out?.WriteLn();
+                console.Out.WriteLn();
                 lineBreak = true;
                 var exitCode = command.Run(argList.ToArray()[1..]);
 
-                console.Out?.WriteLn();
+                console.Out.WriteLn();
 
                 return exitCode;
             }
