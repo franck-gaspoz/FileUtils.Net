@@ -37,9 +37,10 @@ internal sealed class AppHostBuilder
             .ConfigureServices(
                 services => services
                     .AddSingleton<Texts>()
+                    .AddCommandLineArgs(args)
                     .AddCommands()
                     .AddGlobalArguments()
-                    .AddSettedGlobalArguments(args)
+                    .AddSettedGlobalArguments()
                     .ConfigureOutput());
 
         buildAction?.Invoke(hostBuilder);

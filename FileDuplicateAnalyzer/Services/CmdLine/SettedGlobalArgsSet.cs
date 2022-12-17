@@ -11,6 +11,14 @@ internal sealed class SettedGlobalArgsSet
     public IReadOnlyDictionary<string, Arg> Args
         => _args;
 
+    public SettedGlobalArgsSet(
+        CommandLineArgs commandLineArgs,
+        GlobalArgsSet globalArgsSet)
+    {
+        foreach (var kvp in globalArgsSet.Parse(commandLineArgs))
+            Add(kvp.Value);
+    }
+
     public void Add(Arg arg)
         => _args.Add(arg.Name, arg);
 

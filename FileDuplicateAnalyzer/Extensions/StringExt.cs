@@ -13,6 +13,6 @@ public static class StringExt
     public static string? ToFirstUpper(this string? text)
         => (text is null || text.Length == 0)
             ? text
-            : text[0] + text[1..];
+            : char.ToUpperInvariant(text[0]) + text[1..];
 
 }

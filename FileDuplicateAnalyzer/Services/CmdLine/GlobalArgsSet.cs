@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using System.Reflection;
 
 using FileDuplicateAnalyzer.GlobalArgs;
 
@@ -8,12 +9,31 @@ namespace FileDuplicateAnalyzer.Services.CmdLine;
 
 internal class GlobalArgsSet
 {
+    private readonly IServiceProvider _serviceProvider;
+
     protected readonly Dictionary<string, Type> _args = new();
 
     public IReadOnlyDictionary<string, Type> Args
         => _args;
 
-    public void Add(
+    public GlobalArgsSet(IServiceProvider serviceProvider)
+    {
+        _serviceProvider = serviceProvider;
+        foreach (var classType in GetGlobalArgTypes())
+        {
+            var argName = GlobalArg.ClassNameToArgName(
+                classType.Name);
+            Add(argName, classType);
+        }
+    }
+
+    public static IEnumerable<Type> GetGlobalArgTypes()
+        => Assembly
+            .GetExecutingAssembly()
+            .GetTypes()
+            .Where(x => x.InheritsFrom(typeof(GlobalArg)));
+
+    private void Add(
         string name,
         Type argType)
         => _args.Add(name, argType);
@@ -37,17 +57,17 @@ internal class GlobalArgsSet
     }
 
     public Dictionary<string, Arg> Parse(
-        IServiceProvider serviceProvider,
-        List<string> args)
+        CommandLineArgs commandLineArgs)
     {
         Dictionary<string, Arg> res = new();
         var index = 0;
         var position = 0;
+        var args = commandLineArgs.Args.ToList();
         while (index < args.Count)
         {
             var str = args[index];
             if (TryBuild(
-                serviceProvider,
+                _serviceProvider,
                 str,
                 out var arg))
             {

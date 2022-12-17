@@ -1,9 +1,5 @@
-﻿using System.Reflection;
-
-using FileDuplicateAnalyzer.Commands;
+﻿
 using FileDuplicateAnalyzer.GlobalArgs;
-
-using FileDuplicateAnalyzer.Services.Text;
 
 using Microsoft.Extensions.DependencyInjection;
 
@@ -22,30 +18,26 @@ internal static class IServiceCollectionExt
         this IServiceCollection services
         )
     {
+        foreach (var classType in CommandsSet.GetCommandTypes())
+            services.AddTransient(classType);
+
+        return services;
+    }
+
+    /// <summary>
+    /// add command line arguments as a injectable dependcy
+    /// </summary>
+    /// <param name="services">service collection</param>
+    /// <param name="args">command line args</param>
+    /// <returns>service collection</returns>
+    public static IServiceCollection AddCommandLineArgs(
+        this IServiceCollection services,
+        List<string> args)
+    {
         services.AddSingleton(
             serviceProvider =>
-            {
-                var commandSet = new CommandsSet(
-                    serviceProvider.GetRequiredService<Texts>(),
-                    serviceProvider);
+                new CommandLineArgs(args));
 
-                foreach (var classType in
-                    Assembly
-                        .GetExecutingAssembly()
-                        .GetTypes())
-                {
-                    if (classType.InheritsFrom(typeof(Command)))
-                    {
-                        services.AddSingleton(classType);
-
-                        commandSet.Add(
-                            Command.ClassNameToCommandName(classType.Name),
-                            classType);
-                    }
-                }
-                return commandSet;
-            }
-        );
         return services;
     }
 
@@ -57,28 +49,8 @@ internal static class IServiceCollectionExt
     public static IServiceCollection AddGlobalArguments(
         this IServiceCollection services)
     {
-        services.AddSingleton(
-            serviceProvider =>
-            {
-                var globalArgsSet = new GlobalArgsSet();
-
-                foreach (var classType in
-                    Assembly
-                        .GetExecutingAssembly()
-                        .GetTypes())
-                {
-                    if (classType.InheritsFrom(typeof(GlobalArg)))
-                    {
-                        var argName = GlobalArg.ClassNameToArgName(
-                            classType.Name);
-
-                        globalArgsSet.Add(argName, classType);
-                        services.AddTransient(classType);
-                    }
-                }
-
-                return globalArgsSet;
-            });
+        foreach (var classType in GlobalArgsSet.GetGlobalArgTypes())
+            services.AddSingleton(classType);
 
         return services;
     }
@@ -100,26 +72,11 @@ internal static class IServiceCollectionExt
     /// add global arguments founded in command line arguments as injectable dependencies
     /// </summary>
     /// <param name="services">service collection</param>
-    /// <param name="args">command line arguments</param>
     /// <returns>service collection</returns>
     public static IServiceCollection AddSettedGlobalArguments(
-        this IServiceCollection services,
-        List<string> args)
+        this IServiceCollection services)
     {
-        services.AddSingleton<SettedGlobalArgsSet>(
-            serviceProvider =>
-            {
-                var globalArgsSet = serviceProvider.GetRequiredService<GlobalArgsSet>();
-                var settedGlobalArgsSet = new SettedGlobalArgsSet();
-                foreach (var kvp in globalArgsSet!.Parse(
-                    services.BuildServiceProvider(),
-                    args))
-                {
-                    settedGlobalArgsSet.Add(kvp.Value);
-                }
-                services.AddSingleton(settedGlobalArgsSet);
-                return settedGlobalArgsSet;
-            });
+        services.AddSingleton<SettedGlobalArgsSet>();
 
         return services;
     }

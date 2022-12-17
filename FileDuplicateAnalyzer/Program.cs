@@ -1,6 +1,5 @@
 ﻿using AnsiVtConsole.NetCore;
 
-using FileDuplicateAnalyzer.Commands;
 using FileDuplicateAnalyzer.Services.CmdLine;
 using FileDuplicateAnalyzer.Services.Text;
 
@@ -38,9 +37,9 @@ public class Program
         try
         {
             var host = new AppHostBuilder(argList).AppHost;
-            host.StartAsync();
             var texts = host.Services.GetRequiredService<Texts>();
             var console = host.Services.GetRequiredService<IAnsiVtConsole>();
+            var commandSet = host.Services.GetRequiredService<CommandsSet>();
             var lineBreak = false;
             try
             {
@@ -50,7 +49,7 @@ public class Program
                 console.Out.WriteLine();
                 lineBreak = true;
 
-                var command = GetCommand(host.Services, args[0]);
+                var command = commandSet.GetCommand(args[0]);
                 var exitCode = command.Run(argList.ToArray()[1..]);
 
                 console.Out.WriteLine();
@@ -85,11 +84,5 @@ public class Program
         console.Logger.LogError();
         return ExitFail;
     }
-
-    private static Command GetCommand(
-        IServiceProvider serviceProvider,
-        string commandName)
-            => serviceProvider.GetRequiredService<CommandsSet>()
-                .GetCommand(commandName);
 }
 

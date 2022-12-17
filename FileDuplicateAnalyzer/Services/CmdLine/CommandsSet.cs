@@ -1,4 +1,6 @@
-﻿using FileDuplicateAnalyzer.Commands;
+﻿using System.Reflection;
+
+using FileDuplicateAnalyzer.Commands;
 using FileDuplicateAnalyzer.Services.Text;
 
 using Microsoft.Extensions.DependencyInjection;
@@ -10,15 +12,33 @@ internal sealed class CommandsSet
     private readonly Texts _texts;
     private readonly IServiceProvider _serviceProvider;
 
-    public CommandsSet(Texts texts, IServiceProvider serviceProvider)
-        => (_texts, _serviceProvider) = (texts, serviceProvider);
+    public CommandsSet(
+        Texts texts,
+        IServiceProvider serviceProvider)
+    {
+        _texts = texts;
+        _serviceProvider = serviceProvider;
+
+        foreach (var classType in GetCommandTypes())
+        {
+            Add(
+                Command.ClassNameToCommandName(classType.Name),
+                classType);
+        }
+    }
+
+    public static IEnumerable<Type> GetCommandTypes()
+        => Assembly
+            .GetExecutingAssembly()
+            .GetTypes()
+            .Where(x => x.InheritsFrom(typeof(Command)));
 
     private readonly Dictionary<string, Type> _commands = new();
 
     public IReadOnlyDictionary<string, Type> Commands
         => _commands;
 
-    public void Add(
+    private void Add(
         string name,
         Type commandType)
         => _commands.Add(name, commandType);
@@ -35,24 +55,14 @@ internal sealed class CommandsSet
             : commandType;
 
     /// <summary>
-    /// retourne une instance de commande à partir du type de la commande
-    /// </summary>
-    /// <param name="typeName">type de la commande</param>
-    /// <returns>commande</returns>
-    /// <exception cref="ArgumentException">unknown command</exception>
-    public Command GetCommandFromTypeName(string typeName)
-        => (Command)_serviceProvider
-            .GetRequiredService(
-                GetType(typeName));
-
-    /// <summary>
     /// retourne une instance de commande à partir du nom de la commande
     /// </summary>
     /// <param name="name">nom de la commande</param>
     /// <returns>commande</returns>
     /// <exception cref="ArgumentException">unknown command</exception>
     public Command GetCommand(string name)
-        => GetCommandFromTypeName(
-            Command.CommandNameToClassType(name));
+            => (Command)_serviceProvider
+                .GetRequiredService(
+                    GetType(name));
 }
 

@@ -72,7 +72,7 @@ internal sealed class HelpCommand : Command
         }
         else
         {
-            var command = _commandsSet.GetCommandFromTypeName(args[0]);
+            var command = _commandsSet.GetCommand(args[0]);
             DumpLongDescription(command.LongDescription());
         }
         Console.Out.WriteLine();
