@@ -18,6 +18,8 @@ internal static class IServiceCollectionExt
         this IServiceCollection services
         )
     {
+        services.AddSingleton<CommandsSet>();
+
         foreach (var classType in CommandsSet.GetCommandTypes())
             services.AddTransient(classType);
 
