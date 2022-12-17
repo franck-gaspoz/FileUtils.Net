@@ -49,6 +49,8 @@ internal static class IServiceCollectionExt
     public static IServiceCollection AddGlobalArguments(
         this IServiceCollection services)
     {
+        services.AddSingleton<GlobalArgsSet>();
+
         foreach (var classType in GlobalArgsSet.GetGlobalArgTypes())
             services.AddSingleton(classType);
 
