@@ -2,7 +2,7 @@
 
 using FileDuplicateAnalyzer.Commands;
 using FileDuplicateAnalyzer.GlobalArgs;
-using FileDuplicateAnalyzer.Services.IO;
+
 using FileDuplicateAnalyzer.Services.Text;
 
 using Microsoft.Extensions.DependencyInjection;
@@ -66,15 +66,11 @@ internal static class IServiceCollectionExt
 
     public static IServiceCollection ConfigureOutput(this IServiceCollection services)
     {
+        services.AddSingleton<cons.IAnsiVtConsole, cons.AnsiVtConsole>();
         var serviceProvider = services.BuildServiceProvider();
         var settedGlobalArgs = serviceProvider.GetRequiredService<SettedGlobalArgsSet>();
-
-        if (!settedGlobalArgs.Contains<SGlobalArg>())
-            services.AddSingleton<IConsole, IO.Console>();
-        else
-            services.AddSingleton<IConsole, ConsoleMute>();
-        services.AddSingleton<cons.IAnsiVtConsole, cons.AnsiVtConsole>();
-
+        var console = serviceProvider.GetRequiredService<cons.IAnsiVtConsole>();
+        console.Out.IsMute = settedGlobalArgs.Contains<SGlobalArg>();
         return services;
     }
 

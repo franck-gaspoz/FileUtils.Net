@@ -1,4 +1,6 @@
-﻿using FileDuplicateAnalyzer.Services.IO;
+﻿
+using AnsiVtConsole.NetCore;
+
 using FileDuplicateAnalyzer.Services.Text;
 
 using Microsoft.Extensions.Configuration;
@@ -7,13 +9,13 @@ namespace FileDuplicateAnalyzer.Commands;
 
 internal abstract class Command
 {
-    protected readonly IConsole _console;
+    protected readonly IAnsiVtConsole _console;
     protected readonly Texts _texts;
     protected readonly IConfiguration _config;
 
     public Command(
         IConfiguration config,
-        IConsole console,
+        IAnsiVtConsole console,
         Texts texts)
     {
         _config = config;

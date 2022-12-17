@@ -1,4 +1,6 @@
-﻿using FileDuplicateAnalyzer.Services.IO;
+﻿
+using AnsiVtConsole.NetCore;
+
 using FileDuplicateAnalyzer.Services.Text;
 
 using Microsoft.Extensions.Configuration;
@@ -12,7 +14,7 @@ internal sealed class ScanCommand : Command
 {
     public ScanCommand(
         IConfiguration config,
-        IConsole output,
+        IAnsiVtConsole output,
         Texts texts) : base(config, output, texts)
     {
     }

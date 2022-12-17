@@ -1,5 +1,5 @@
-﻿
-using FileDuplicateAnalyzer.Services.IO;
+﻿using AnsiVtConsole.NetCore;
+
 using FileDuplicateAnalyzer.Services.Text;
 
 using Microsoft.Extensions.Configuration;
@@ -13,7 +13,7 @@ internal sealed class MakeDbCommand : Command
 {
     public MakeDbCommand(
         IConfiguration config,
-        IConsole output,
+        IAnsiVtConsole output,
         Texts texts) : base(config, output, texts)
     {
     }

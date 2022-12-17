@@ -1,6 +1,7 @@
-﻿using FileDuplicateAnalyzer.Commands;
+﻿using AnsiVtConsole.NetCore;
+
+using FileDuplicateAnalyzer.Commands;
 using FileDuplicateAnalyzer.Services.CmdLine;
-using FileDuplicateAnalyzer.Services.IO;
 using FileDuplicateAnalyzer.Services.Text;
 
 using Microsoft.Extensions.Configuration;
@@ -47,7 +48,7 @@ public class Program
             var host = CreateHost(argList);
             host.StartAsync();
             var texts = host.Services.GetRequiredService<Texts>();
-            var console = host.Services.GetRequiredService<IConsole>();
+            var console = host.Services.GetRequiredService<IAnsiVtConsole>();
             var lineBreak = false;
             try
             {
@@ -75,20 +76,20 @@ public class Program
         {
             return ExitWithError(
                 hostBuilderException,
-                new Services.IO.Console(new cons.AnsiVtConsole()),
+                new cons.AnsiVtConsole(),
                 true);
         }
     }
 
     private static int ExitWithError(
         Exception ex,
-        IConsole console,
+        IAnsiVtConsole console,
         bool lineBreak)
     {
         if (!lineBreak)
-            console.Err?.Logln();
-        console.Err?.Logln(ex.Message);
-        console.Err?.Logln();
+            console.Logger.LogError(string.Empty);
+        console.Logger.LogError(ex.Message);
+        console.Logger.LogError(string.Empty);
         return ExitFail;
     }
 

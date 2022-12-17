@@ -1,8 +1,10 @@
 ﻿using System.Reflection;
 
+using AnsiVtConsole.NetCore;
+
 using FileDuplicateAnalyzer.GlobalArgs;
 using FileDuplicateAnalyzer.Services.CmdLine;
-using FileDuplicateAnalyzer.Services.IO;
+
 using FileDuplicateAnalyzer.Services.Text;
 
 using Microsoft.Extensions.Configuration;
@@ -23,7 +25,7 @@ internal sealed class HelpCommand : Command
         IConfiguration config,
         CommandsSet commands,
         GlobalArgsSet globalArgsSet,
-        IConsole console,
+        IAnsiVtConsole console,
         Texts texts,
         IServiceProvider serviceProvider) : base(config, console, texts)
     {
