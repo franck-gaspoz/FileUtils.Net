@@ -1,7 +1,7 @@
 ﻿namespace FileUtils.Net.SharedModels.ScanDb;
 
 [Serializable]
- class FodlerItem : FileSystemItem
+class FodlerItem : FileSystemItem
 {
     public FodlerItem(
         string name,

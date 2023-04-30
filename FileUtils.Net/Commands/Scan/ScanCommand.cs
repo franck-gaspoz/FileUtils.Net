@@ -10,7 +10,7 @@ namespace FileUtils.Net.Commands.Scan;
 /// <summary>
 /// scan files
 /// </summary>
- class ScanCommand : Command
+class ScanCommand : Command
 {
     public ScanCommand(
         IConfiguration config,

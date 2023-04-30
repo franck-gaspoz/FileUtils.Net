@@ -4,9 +4,9 @@ using FileUtils.Net.GlobalArgs;
 
 namespace FileUtils.Net.Services.CmdLine;
 
- class SettedGlobalArgsSet
+class SettedGlobalArgsSet
 {
-    private readonly Dictionary<string, Arg> _args = new();
+    readonly Dictionary<string, Arg> _args = new();
 
     public IReadOnlyDictionary<string, Arg> Args
         => _args;

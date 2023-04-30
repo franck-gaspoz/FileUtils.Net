@@ -2,7 +2,7 @@
 
 namespace FileUtils.Net.SharedModels;
 
- class ValidFileInfo
+class ValidFileInfo
 {
     /// <summary>
     /// file info
