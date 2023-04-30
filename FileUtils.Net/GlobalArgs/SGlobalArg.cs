@@ -4,7 +4,7 @@ using Microsoft.Extensions.Configuration;
 
 namespace FileUtils.Net.GlobalArgs;
 
-internal class SGlobalArg : GlobalArg
+class SGlobalArg : GlobalArg
 {
     public SGlobalArg(
         IConfiguration config,

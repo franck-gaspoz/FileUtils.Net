@@ -15,11 +15,11 @@ namespace FileUtils.Net.Commands.CmdLine;
 /// <summary>
 /// command line help
 /// </summary>
-internal sealed class HelpCommand : Command
+class HelpCommand : Command
 {
-    private readonly CommandsSet _commandsSet;
-    private readonly GlobalArgsSet _globalArgsSet;
-    private readonly IServiceProvider _serviceProvider;
+    readonly CommandsSet _commandsSet;
+    readonly GlobalArgsSet _globalArgsSet;
+    readonly IServiceProvider _serviceProvider;
 
     public HelpCommand(
         IConfiguration config,
@@ -35,14 +35,14 @@ internal sealed class HelpCommand : Command
         _commandsSet = commands;
     }
 
-    private const string TitleColor = "(bon,f=cyan)";
-    private const string SectionTitleColor = "(uon,f=yellow,bon)";
-    private const string CommandNameColor = "(bon,f=green)";
-    private const string ArgNameColor = "(f=darkyellow)";
-    private const string ArgValueColor = "(bon,f=cyan)";
-    private const string StOff = "(tdoff)";
+    const string TitleColor = "(bon,f=cyan)";
+    const string SectionTitleColor = "(uon,f=yellow,bon)";
+    const string CommandNameColor = "(bon,f=green)";
+    const string ArgNameColor = "(f=darkyellow)";
+    const string ArgValueColor = "(bon,f=cyan)";
+    const string StOff = "(tdoff)";
 
-    private void Sep() => Console.Out.WriteLine(TitleColor + "".PadLeft(50, '-'));
+    void Sep() => Console.Out.WriteLine(TitleColor + "".PadLeft(50, '-'));
 
     protected override int Execute(string[] args)
     {
@@ -81,7 +81,7 @@ internal sealed class HelpCommand : Command
         return Globals.ExitOk;
     }
 
-    private void OutputAppTitle()
+    void OutputAppTitle()
     {
         Sep();
         var date =
@@ -95,10 +95,10 @@ internal sealed class HelpCommand : Command
         Console.Out.WriteLine();
     }
 
-    private void OutputSectionTitle(string text)
+    void OutputSectionTitle(string text)
         => Console.Out.WriteLine(SectionTitleColor + text + StOff);
 
-    private void DumpCommandSyntax(string text)
+    void DumpCommandSyntax(string text)
     {
         var args = text.Split(' ');
         var cmdName = StringAt(0, ref args);
@@ -118,7 +118,7 @@ internal sealed class HelpCommand : Command
         Console.Out.Write(StOff);
     }
 
-    private void DumpLongDescription(string text)
+    void DumpLongDescription(string text)
     {
         var lines = text
             .Replace("\r", "")
@@ -140,6 +140,6 @@ internal sealed class HelpCommand : Command
         }
     }
 
-    private static string StringAt(int i, ref string[] t)
+    static string StringAt(int i, ref string[] t)
         => i <= t.Length ? t[i] : "";
 }

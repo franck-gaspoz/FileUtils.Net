@@ -5,7 +5,7 @@ using Microsoft.Extensions.Configuration;
 
 namespace FileUtils.Net.GlobalArgs;
 
-internal sealed class CGlobalArg : GlobalArg
+sealed class CGlobalArg : GlobalArg
 {
     public ValidFileInfo FileInfo { get; private set; }
 

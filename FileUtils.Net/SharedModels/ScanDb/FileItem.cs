@@ -1,7 +1,7 @@
 ﻿namespace FileUtils.Net.SharedModels.ScanDb;
 
 [Serializable]
-internal sealed class FileItem : FileSystemItem
+ class FileItem : FileSystemItem
 {
     public FileItem(
         string name,

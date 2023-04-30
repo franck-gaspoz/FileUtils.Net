@@ -7,7 +7,7 @@ using cons = AnsiVtConsole.NetCore;
 
 namespace FileUtils.Net.Services.CmdLine;
 
-internal static class IServiceCollectionExt
+static class IServiceCollectionExt
 {
     /// <summary>
     /// add commands founded in the executing assembly as injectable dependencies

@@ -2,7 +2,7 @@
 
 namespace FileUtils.Net.Services.CmdLine;
 
-internal sealed class CommandLineArgs
+ class CommandLineArgs
 {
     public ReadOnlyCollection<string> Args { get; private set; }
 

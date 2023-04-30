@@ -4,7 +4,7 @@ using FileUtils.Net.GlobalArgs;
 
 namespace FileUtils.Net.Services.CmdLine;
 
-internal sealed class SettedGlobalArgsSet
+ class SettedGlobalArgsSet
 {
     private readonly Dictionary<string, Arg> _args = new();
 

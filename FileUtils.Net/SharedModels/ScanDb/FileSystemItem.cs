@@ -1,7 +1,7 @@
 ﻿namespace FileUtils.Net.SharedModels.ScanDb;
 
 [Serializable]
-internal abstract class FileSystemItem
+abstract class FileSystemItem
 {
     public string Name { get; private set; }
 

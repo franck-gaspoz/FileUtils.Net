@@ -4,7 +4,7 @@ using Microsoft.Extensions.Configuration;
 
 namespace FileUtils.Net.GlobalArgs;
 
-internal abstract class GlobalArg : Arg
+abstract class GlobalArg : Arg
 {
     protected GlobalArg(
         string name,
